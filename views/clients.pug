@@ -1,0 +1,30 @@
+extends layout
+
+block content
+  div.row
+    div.col-sm-8
+      h1= title
+      p Teretulemast #{title}
+      - var pikkus = result.toString().length
+      p Pikkus = #{pikkus}
+    div.col-sm-4
+      #{result.displayName}
+
+    script.
+     var tulemus = !{JSON.stringify(result)};
+     console.log(tulemus);
+  ul
+    li #{result.displayName}
+
+
+  //-
+
+    each val, index in result
+    li= index + ': ' + val
+    -
+      for(var i = 0; i < pikkus; i++) {
+      li siia tulevad read
+        Object.values(result[i]).forEach(function(key) {
+        li Tore teada #{i};
+        });
+      }

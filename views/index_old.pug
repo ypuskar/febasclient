@@ -1,0 +1,13 @@
+extends layout
+
+block content
+  link(rel='stylesheet', href='/stylesheets/signin.css')
+  h1= title
+  div.container
+    form.form-signin
+      h2.form-signin-heading Palun logi sisse
+      label.sr-only(for='inputEmail') E-maili aadress
+      input.form-control#inputEmail(placeholder='Lisa E-maili aadress')
+      label.sr-only(for='inputPassword') Salasõna
+      input.form-control#inputPassword(type='password', placeholder='Lisa salasõna')
+      button.btn.btn-primary.btn-block(type='submit') Logi sisse

@@ -1,0 +1,44 @@
+body {
+  padding: 5px;
+  padding-left: 15px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+td.details-control {
+  background: url('/images/details_open.png') no-repeat center center;
+  cursor: pointer;
+  }
+tr.shown td.details-control {
+  background: url('/images/details_close.png') no-repeat center center;
+  }
+
+td.data {font-size:9px}
+
+td.alamtabel {font-weight: bold}
+
+td.stop-dist {
+  background: url('/images/Sign-Stop-icon.png') no-repeat center center;
+  cursor: pointer;
+  }
+  @media screen {
+       #printSection {
+          display: none;
+       }
+  }
+
+  @media print {
+       body > *:not(#printSection) {
+          display: none;
+       }
+       #printSection, #printSection * {
+           visibility: visible;
+       }
+       #printSection {
+           position:absolute;
+           left:0;
+           top:0;
+       }
+  }

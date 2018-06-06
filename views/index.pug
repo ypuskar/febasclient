@@ -1,0 +1,12 @@
+extends layout
+
+block content
+  link(rel='stylesheet', href='/stylesheets/signin.css')
+  h1= title
+  script console.log(!{JSON.stringify(user)});
+  div.container
+    if !user
+      a(href="/login") Logi sisse oma AD kontoga
+    else
+      p  Tere tulemast #{user.displayName}!
+      a(href="/logout") Log Out
