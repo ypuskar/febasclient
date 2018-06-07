@@ -23,13 +23,13 @@ td.stop-dist {
   background: url('/images/Sign-Stop-icon.png') no-repeat center center;
   cursor: pointer;
   }
-  @media screen {
+/*@media screen {
        #printSection {
           display: none;
        }
   }
-
-  @media print {
+*/
+@media print {
        body > *:not(#printSection) {
           display: none;
        }
