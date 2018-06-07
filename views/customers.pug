@@ -129,6 +129,17 @@ block content
 
     console.log(tulemus.length);
     var table = $('#pickle').DataTable({
+    dom: 'Blfrtip',
+    buttons: [
+      'copy', 'csv', 'excel', 'pdf',
+      {
+      extend: 'print',
+      customize: function ( win ) {
+      $(win.document.body).find( 'table' )
+        .attr( 'id', 'printSection' );
+      }
+      }
+    ],
     bDestroy: true,
     bProcessing: true,
     deferRender: true,
