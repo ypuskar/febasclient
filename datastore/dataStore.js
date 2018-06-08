@@ -1,3 +1,4 @@
+// Purpose: Open database connection and execute query
 //var Connection = require('tedious').Connection;
 //var sql = require('mssql');
 var Connection = require('tedious').Connection;
@@ -31,7 +32,7 @@ exports.executesql = function(muutuja, sqlstatement, callback) {
     {
       if (err)
         {
-           console.log('viga kurat ' + err)
+           console.log('viga baasi avamisel ' + err)
         }
      else
         {
@@ -126,7 +127,7 @@ connection.on('error', function(err)
 //        process.exit(1);
 
       } else {
-      console.log("FUUUUUUUUUUCK");
+      console.log("SQL lugemine");
 //      Read(sqlstatement, callback);
         var request = new Request(sqlstatement,
           function (err, rowCount, rows) {
@@ -158,192 +159,7 @@ connection.on('error', function(err)
 
       }
 
-/*    function Read(sqlstatement, callback) {
 
-      var request = new Request(sqlstatement,
-        function (err, rowCount, rows) {
-
-          if (err) {
-              callback(err);
-          } else {
-              console.log(rowCount + ' row(s) returned');
-              callback(rows);
-          }
-          });
-          var result = "";
-
-          request.on('row', function(columns) {
-              columns.forEach(function(column) {
-                  if (column.value === null) {
-                      console.log('NULL');
-                  } else {
-                      result += column.value + " ";
-
-                  }
-              });
-              console.log(result);
-              result = '';
-            });
-            // Execute SQL statement
-            connection.execSql(request);
-          };
-};
-*/
-/*        if(err) {
-
-            console.log('Error: ' + err);
-
-            callback(err);
-
-        }
-
-        else {
-
-  //          var request = new sql.Request(connection);
-
-  new sql.Request().query('SELECT TOP 20 k.[KLENDI_NIMI] as Kliendi_nimi, p.MT_NIMETUS as Maksetingimus FROM [MR_KLIENDID] k JOIN [MR_MAKSETINGIMUS] p ON k.MAKSETINGIMUS = p.MT,',
-            function(err, recordsets) {
-
-                if(err) {
-
-                    console.log('Error: ' + err);
-
-                    callback(err);
-
-                }
-
-                else {
-
-                    console.dir(recordsets);
-
-                    callback(null, recordsets);
-
-                }
-
-            });
-
-        }
-
-    });
-
-
-
-    connection.on('error', function(err) {
-
-        console.log('Error: ' + err);
-
-    });
-
-}
-
-*/
-/*
-DataStore.getHeroesByIntent = function(good, callback) {
-
-    var connection = new sql.Connection(config, function(err) {
-
-        if(err) {
-
-            console.log('Error: ' + err);
-
-            callback(err);
-
-        }
-
-        else {
-
-            var request = new sql.Request(connection);
-
-            request.input('good', sql.Bit, good);
-
-            request.execute('HeroesByIntent', function(err, recordsets) {
-
-                if(err) {
-
-                    console.log('Error: ' + err);
-
-                    callback(err);
-
-                }
-
-                else {
-
-                    console.dir(recordsets);
-
-                    callback(null, recordsets);
-
-                }
-
-            });
-
-        }
-
-    });
-
-
-
-    connection.on('error', function(err) {
-
-        console.log('Error: ' + err);
-
-    });
-
-}
-
-
-
-DataStore.getHeroById = function(heroId, callback) {
-
-    var connection = new sql.Connection(config, function(err) {
-
-        if(err) {
-
-            console.log('Error: ' + err);
-
-            callback(err);
-
-        }
-
-        else {
-
-            var request = new sql.Request(connection);
-
-            request.input('heroId', sql.Bit, heroId);
-
-            request.execute('HeroById', function(err, recordsets) {
-
-                if(err) {
-
-                    console.log('Error: ' + err);
-
-                    callback(err);
-
-                }
-
-                else {
-
-                    console.dir(recordsets);
-
-                    callback(null, recordsets);
-
-                }
-
-            });
-
-        }
-
-    });
-
-
-
-    connection.on('error', function(err) {
-
-        console.log('Error: ' + err);
-
-    });
-
-}
-*/
 
 
 //module.exports = DataStore;

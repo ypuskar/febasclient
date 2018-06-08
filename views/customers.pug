@@ -74,10 +74,10 @@ block content
         th
         th
         th Kliendi nimi
-        th Maksetingimus
-        th Tasumata summa
-        th Limiiti alles
-        th MA
+        th Aegumata
+        th 30P
+        th 180P
+        th Arve tk
 
   script.
     $(document).ready(function() {
@@ -169,15 +169,15 @@ block content
       "orderable"      : false
       },
      { "data"     : "Kliendi_nimi" },
-     { "data"     : "Maksetingimus" },
-     { "data"     : "Tasumata_SUM" },
-     { "data"     : null,
-       "render"   : function (data, type, row, meta) {
-        var ylelimiidi = row.KRED_LIMIIT - row.Tasumata_SUM ;
-         return (ylelimiidi < 0 ? '<span class="text-danger">'+ylelimiidi+'</span>' : '<span class="text-success">'+ylelimiidi+'</span>') ;
-         },
+     { "data"     : "AEGUMATA" },
+     { "data"     : "30P" },
+     { "data"     : "180P",
+      // "render"   : function (data, type, row, meta) {
+      //  var ylelimiidi = row.KRED_LIMIIT - row.Tasumata_SUM ;
+      //   return (ylelimiidi < 0 ? '<span class="text-danger">'+ylelimiidi+'</span>' : '<span class="text-success">'+ylelimiidi+'</span>') ;
+      //   },
        },
-     { "data"     : "Maksmata_arveid",
+     { "data"     : "ARVEID",
       },
     ],
     "order": [[2, 'asc']]
@@ -342,7 +342,7 @@ block content
         '</tr>'+
         '<tr>'+
             '<td class="alamtabel">Maksmata arveid:</td>'+
-            '<td>'+d.Maksmata_arveid+'</td>'+
+            '<td>'+d.ARVEID+'</td>'+
         '</tr>'+
         '<tr>'+
             '<td class="alamtabel">Kommentaar:</td>'+

@@ -26,16 +26,37 @@ exports.customer_json = function (req, res) {
   res.status(200).json(result);
   });
 };
+
+// SQL loads all Feb customers and joins maksetingimus
 exports.customer_feb = function(req, res) {
-  DataStore.executesql(req, 'SELECT  DISTINCT k.[KLENDI_NIMI] as Kliendi_nimi, k.[E_MAIL],'+
-                        ' k.[TELEFON], k.[KMKN], k.[MÄRKUS_1], k.[AUT_TARNEKEELD],'+
-                        ' k.[KRED_LIMIIT], k.[REG_NR], k.[TARNEKEELD], k.[MÄRKUS_2],'+
-                        ' k.KOMMENTAAR, k.ID,'+
-                        ' COUNT(a.ID) over (partition by k.id) AS [Maksmata_arveid],'+
-                        ' SUM(a.tasumata) over (partition by k.id) as [Tasumata_SUM],'+
-                        ' p.[MT_NIMETUS] as Maksetingimus FROM [MR_KLIENDID] k'+
-                        ' JOIN [MR_MAKSETINGIMUS] p ON k.MAKSETINGIMUS = p.MT'+
-                        ' LEFT OUTER JOIN [MR_ARVED] a ON k.ID = a.KLIENDI_ID',
+  DataStore.executesql(req, 'SELECT  DISTINCT k.[KLENDI_NIMI] as Kliendi_nimi,'+
+                        ' k.[E_MAIL],'+
+                        ' k.[TELEFON],'+
+                        ' k.[KMKN],'+
+                        ' k.[MÄRKUS_1],'+
+                        ' k.[AUT_TARNEKEELD],'+
+                        ' k.[KRED_LIMIIT],'+
+                        ' k.[REG_NR],'+
+                        ' k.[TARNEKEELD],'+
+                        ' k.[MÄRKUS_2],'+
+                        ' k.KOMMENTAAR,'+
+                        ' k.ID,'+
+                        ' k.AEGUMATA,'+
+                        ' k.[30P],'+
+                        ' k.[180P],'+
+                        ' k.VANEM,'+
+                        ' k.KOKKU,'+
+                        ' k.TARNITUD,'+
+                        ' k.VABA_LIMIIT,'+
+                        ' k.YLE_MT,'+
+                        ' k.YLE_LIMIIDI,'+
+                        ' k.ARVEID'+
+//                        ' COUNT(a.ID) over (partition by k.id) AS [Maksmata_arveid],'+
+//                        ' SUM(a.tasumata) over (partition by k.id) as [Tasumata_SUM],'+
+//                        ' p.[MT_NIMETUS] as Maksetingimus'+
+                        ' FROM [MR_KLIENDID] k',
+//                        ' JOIN [MR_MAKSETINGIMUS] p ON k.MAKSETINGIMUS = p.MT'+
+//                        ' LEFT OUTER JOIN [MR_ARVED] a ON k.ID = a.KLIENDI_ID',
                         function(result){
 
 //  res.send('LÕPP KÄES');
