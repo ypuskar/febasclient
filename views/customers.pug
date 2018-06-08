@@ -77,6 +77,10 @@ block content
         th Aegumata
         th 30P
         th 180P
+        th Vanem
+        th Kokku
+        th Tarnitud
+        th Limiiti alles
         th Arve tk
 
   script.
@@ -148,8 +152,8 @@ block content
       if(data.TARNEKEELD == 1 || data.AUT_TARNEKEELD == 1) {
         $('td:eq(1)', row).addClass('stop-dist');
       }
-      if(data.Maksmata_arveid > 0) {
-        $('td:eq(6)', row).attr({'data-toggle': 'modal', 'data-target': '#arved', 'role':'button', 'data-url': data.ID, 'data-nimi': data.Kliendi_nimi }).addClass('text-primary');
+      if(data.ARVEID > 0) {
+        $('td:eq(10)', row).attr({'data-toggle': 'modal', 'data-target': '#arved', 'role':'button', 'data-url': data.ID, 'data-nimi': data.Kliendi_nimi }).addClass('text-primary');
       }
     },
     columns: [
@@ -177,8 +181,11 @@ block content
       //   return (ylelimiidi < 0 ? '<span class="text-danger">'+ylelimiidi+'</span>' : '<span class="text-success">'+ylelimiidi+'</span>') ;
       //   },
        },
-     { "data"     : "ARVEID",
-      },
+      { "data"     : "VANEM" },
+      { "data"     : "KOKKU" },
+      { "data"     :  "TARNITUD" },
+      { "data"     : "VABA_LIMIIT" },
+      { "data"     : "ARVEID" },
     ],
     "order": [[2, 'asc']]
     });
