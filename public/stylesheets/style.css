@@ -42,3 +42,7 @@ td.stop-dist {
            top:0;
        }
   }
+.borderless {
+      border: none !important;
+      padding: 2px !important;
+}
