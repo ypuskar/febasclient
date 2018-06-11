@@ -239,8 +239,9 @@ block content
           var button = $(event.relatedTarget) // Button that triggered the modal
           var recipient = button.data('url') // Extract info from data-* attributes
           var createdby = button.data('user')
-          var tekst = button.data('tekst')
-          if (tekst.length > 999){
+          var tekst = button.data('tekst');
+          console.log(tekst);
+          if (tekst != null && tekst.length > 999){
           alert('Kommentaari pikkus võib maksimaalselt olla 1000 märki. Tee kommentaar lühemaks ja salvesta uuesti');
           return;
           };
