@@ -226,11 +226,11 @@ block content
                 return intVal(a) + intVal(b);
             }, 0 );
 
-            total7 = Math.round(total7).toLocaleString('et-EE',{style: 'currency', currency: 'EUR', minimumFractionDigits: 0 });
-            total6 = Math.round(total6).toLocaleString('et-EE',{style: 'currency', currency: 'EUR', minimumFractionDigits: 0 });
-            total5 = Math.round(total5).toLocaleString('et-EE',{style: 'currency', currency: 'EUR', minimumFractionDigits: 0 });
-            total4 = Math.round(total4).toLocaleString('et-EE',{style: 'currency', currency: 'EUR', minimumFractionDigits: 0 });
-            total3 = Math.round(total3).toLocaleString('et-EE',{style: 'currency', currency: 'EUR', minimumFractionDigits: 0 });
+            total7 = Math.round(total7).toLocaleString('et-EE',{style: 'decimal' });
+            total6 = Math.round(total6).toLocaleString('et-EE',{style: 'decimal' });
+            total5 = Math.round(total5).toLocaleString('et-EE',{style: 'decimal' });
+            total4 = Math.round(total4).toLocaleString('et-EE',{style: 'decimal' });
+            total3 = Math.round(total3).toLocaleString('et-EE',{style: 'decimal' });
 
           $(thead).find('th').eq(7).html( 'Kokku<br>'+(total7) );
           $(thead).find('th').eq(6).html( 'Vanem<br>'+(total6) );
@@ -256,24 +256,24 @@ block content
           },
          { "data"     : "Kliendi_nimi" },
          { "data"     : "AEGUMATA",
-           "render"   : $.fn.dataTable.render.number( ' ', ',', 0, '',' €' ) },
+           "render"   : $.fn.dataTable.render.number( ' ', ',', 0 ) },
          { "data"     : "30P",
-           "render"   : $.fn.dataTable.render.number( ' ', ',', 0, '',' €' ) },
+           "render"   : $.fn.dataTable.render.number( ' ', ',', 0 ) },
          { "data"     : "180P",
-           "render"   : $.fn.dataTable.render.number( ' ', ',', 0, '',' €' )
+           "render"   : $.fn.dataTable.render.number( ' ', ',', 0 )
           // "render"   : function (data, type, row, meta) {
           //  var ylelimiidi = row.KRED_LIMIIT - row.Tasumata_SUM ;
           //   return (ylelimiidi < 0 ? '<span class="text-danger">'+ylelimiidi+'</span>' : '<span class="text-success">'+ylelimiidi+'</span>') ;
           //   },
            },
           { "data"     : "VANEM" ,
-            "render"   : $.fn.dataTable.render.number( ' ', ',', 0, '',' €' )},
+            "render"   : $.fn.dataTable.render.number( ' ', ',', 0 )},
           { "data"     : "KOKKU" ,
-            "render"   : $.fn.dataTable.render.number( ' ', ',', 0, '',' €' )},
+            "render"   : $.fn.dataTable.render.number( ' ', ',', 0 )},
           { "data"     :  "TARNITUD",
-            "render"   : $.fn.dataTable.render.number( ' ', ',', 0, '',' €' ) },
+            "render"   : $.fn.dataTable.render.number( ' ', ',', 0 ) },
           { "data"     : "VABA_LIMIIT",
-            "render"   : $.fn.dataTable.render.number( ' ', ',', 0, '',' €' ) },
+            "render"   : $.fn.dataTable.render.number( ' ', ',', 0 ) },
           { "data"     : "ARVEID" },
         ],
         "columnDefs": [
