@@ -29,6 +29,13 @@ td.stop-dist {
        }
   }
 */
+.bold {
+  font-weight:bold;
+}
+.bold-red {
+  font-weight:bold;
+  color:red;
+}
 @media print {
        body > *:not(#printSection) {
           display: none;
