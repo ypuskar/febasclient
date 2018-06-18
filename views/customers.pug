@@ -82,7 +82,7 @@ block content
     thead
       tr
         th
-        th
+        th Tarne<br>keeld
         th Kliendi nimi
         th Aegumata
         th 30P
@@ -91,7 +91,7 @@ block content
         th Kokku
         th Tarnitud
         th Limiiti alles
-        th Arve tk
+        th Arveid
 
   script.
     //table filter function
@@ -176,8 +176,8 @@ block content
         deferRender: true,
         data: tulemus,
         rowCallback: function(row, data, index) {
-          if(data.TARNEKEELD == 1 || data.AUT_TARNEKEELD == 1) {
-            $('td:eq(1)', row).addClass('stop-dist');
+          if( data.YLE_MT == 1 || data.VABA_LIMIIT < 0 ) {
+            $('td:eq(2)', row).addClass('bold-red');
           }
           if(data.ARVEID > 0) {
             $('td:eq(10)', row).attr({'data-toggle': 'modal', 'data-target': '#arved', 'role':'button', 'data-url': data.ID, 'data-nimi': data.Kliendi_nimi }).addClass('text-primary');
@@ -195,6 +195,13 @@ block content
           };
 
           // Total over all pages
+
+          total8 = api
+            .column( 8, {'filter': 'applied'} )
+            .data()
+            .reduce( function (a, b) {
+                return intVal(a) + intVal(b);
+            }, 0 );
           total7 = api
             .column( 7, {'filter': 'applied'} )
             .data()
@@ -226,12 +233,14 @@ block content
                 return intVal(a) + intVal(b);
             }, 0 );
 
+            total8 = Math.round(total8).toLocaleString('et-EE',{style: 'decimal' });
             total7 = Math.round(total7).toLocaleString('et-EE',{style: 'decimal' });
             total6 = Math.round(total6).toLocaleString('et-EE',{style: 'decimal' });
             total5 = Math.round(total5).toLocaleString('et-EE',{style: 'decimal' });
             total4 = Math.round(total4).toLocaleString('et-EE',{style: 'decimal' });
             total3 = Math.round(total3).toLocaleString('et-EE',{style: 'decimal' });
 
+          $(thead).find('th').eq(8).html( 'Tarnitud<br>'+(total8) );
           $(thead).find('th').eq(7).html( 'Kokku<br>'+(total7) );
           $(thead).find('th').eq(6).html( 'Vanem<br>'+(total6) );
           $(thead).find('th').eq(5).html( '180P<br>'+(total5) );
@@ -249,12 +258,14 @@ block content
           //"className"      : 'stop-dist',
           "defaultContent" : '',
           "data"           : "TARNEKEELD",
-          "render"         : function (data, type, row, meta) {
-            return  null;
-            },
-          "orderable"      : false
+        //  "render"         : function (data, type, row, meta) {
+        //    return  null;
+        //    },
+          "orderable"      : true
           },
-         { "data"     : "Kliendi_nimi" },
+         { "data"     : "Kliendi_nimi",
+           "className": 'bold',
+            },
          { "data"     : "AEGUMATA",
            "render"   : $.fn.dataTable.render.number( ' ', ',', 0 ) },
          { "data"     : "30P",
