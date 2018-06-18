@@ -41,8 +41,8 @@ block content
           button.close(type="button", data-dismiss="modal")
             span(aria-hidden="true") x
             span.sr-only Close
-          button.btn.btn-default.float-right#btnPrint(type='button') Trüki
-          div.printMe#printThis
+          //button.btn.btn-default.float-right#btnPrint(type='button') Trüki
+          div.printSection#printThis
             h4
               span#kliendinimi tasumata arved
             .modal-body
@@ -97,7 +97,7 @@ block content
     //table filter function
     $.fn.dataTable.ext.search.push(
       function( settings, data, dataIndex, rowData, counter ) {
-        if($("#limiit").is(':checked') && ($("#tahtaeg").is(':checked')) && (rowData.YLE_LIMIIDI) && (rowData.YLE_MT) )
+        if($("#limiit").is(':checked') && ($("#tahtaeg").is(':checked')) && (rowData.YLE_LIMIIDI) && (rowData.YLE_MT) || (rowData.ARVE_NUMBER != null))
           return true;
         else if($("#limiit").is(':checked') && !($("#tahtaeg").is(':checked')) && (rowData.YLE_LIMIIDI) )
           return true;
@@ -109,7 +109,23 @@ block content
           return false;
       }
     );
+    $.fn.dataTable.moment = function (format, locale) {
+    var types = $.fn.dataTable.ext.type;
+
+      // Add type detection
+      types.detect.unshift( function ( d ) {
+          return moment( d, format, locale, true ).isValid() ?
+              'moment-'+format :
+              null;
+      } );
+
+      // Add sorting method - use an integer for the sorting
+      types.order[ 'moment-'+format+'-pre' ] = function ( d ) {
+          return moment( d, format, locale, true ).unix();
+      };
+    };
     $(document).ready(function() {
+      $.fn.dataTable.moment( 'DD/MM/YYYY' );
       var testdata = [
         {
           "kliendi_nimi":   "FEBKLIENT",
@@ -357,31 +373,31 @@ block content
             // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
             // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
             var modal = $(this);
-            var url = "/clients/customers/customers/"+recipient+"/arve";
+            var arvedurl = "/clients/customers/customers/"+recipient+"/arve";
             var kliendinimi = button.data('nimi');
             var aeg = new Date();
             var kuu = ((aeg.getMonth().length+1)===1)? (aeg.getMonth() + 1) : "0" + (aeg.getMonth() + 1);
             $("#kliendinimi").text(kliendinimi + " tasumata arved seisuga " +
             aeg.getDate()+"/"+ kuu +
             "/"+ aeg.getFullYear());
-            $.getJSON(url, function( data) { //read customer invoices from url
+            /*$.getJSON(url, function( dataArved) { //read customer invoices from url
 
-              if (data.length > 0) {
+              if (dataArved.length > 0) {
                 $(".arve").remove();
                 var summa = 0;
                 var tsumma = 0;
                 var msumma=0;
-                for (var i = 0; i < data.length; i++) {
-                  summa += data[i].ARVE_SUMMA;
-                  tsumma += data[i].TASUTUD;
-                  msumma += data[i].TASUMATA;
+                for (var i = 0; i < dataArved.length; i++) {
+                  summa += dataArved[i].ARVE_SUMMA;
+                  tsumma += dataArved[i].TASUTUD;
+                  msumma += dataArved[i].TASUMATA;
                   var row = ("<tr class='arve'><td>" +data[i].ARVE_NUMBER
-                  + "</td><td>"+data[i].ARVE_KUUPÄEV
-                  + "</td><td>"+data[i].MAKSE_KUUPÄEV
-                  + "</td><td>"+data[i].ARVE_SUMMA
-                  + "</td><td>"+data[i].TASUTUD
-                  + "</td><td>"+data[i].TASUMATA
-                  + "</td><td>"+data[i].FILIAAL
+                  + "</td><td>"+dataArved[i].ARVE_KUUPÄEV
+                  + "</td><td>"+dataArved[i].MAKSE_KUUPÄEV
+                  + "</td><td>"+dataArved[i].ARVE_SUMMA
+                  + "</td><td>"+dataArved[i].TASUTUD
+                  + "</td><td>"+dataArved[i].TASUMATA
+                  + "</td><td>"+dataArved[i].FILIAAL
                   +"</td></tr>")
                   $("#arveTabel tbody").append(row);
                 }
@@ -394,8 +410,57 @@ block content
                 + "</td><td>"
                 +"</td></tr>")
                 $("#arveTabel tfoot").append(row);
+
               }
-            })
+            })*/
+            var arvetable = $('#arveTabel').DataTable({
+              destroy: true,
+              ajax: {
+              url : arvedurl,
+              method: "GET",
+              dataSrc: ""
+              },
+              dom: 'Blfrtip',
+              buttons: [
+                'copy', 'csv', 'excel',
+                {
+                extend: 'pdf',
+                title:  kliendinimi + " tasumata arved seisuga " +
+                            aeg.getDate()+"/"+ kuu +
+                            "/"+ aeg.getFullYear()
+                },
+                {
+                extend: 'print',
+                title:      kliendinimi + " tasumata arved seisuga " +
+                            aeg.getDate()+"/"+ kuu +
+                            "/"+ aeg.getFullYear(),
+                customize: function ( win ) {
+                $(win.document.body).find( 'table' )
+                  .attr( 'id', 'printSection' );
+                $(win.document.body).find('h1')
+                .attr('id','printSection').wrap('<div class="header-print" id=printSection></div>');
+                }
+                }
+              ],
+              rowCallback: function(row, data, index) {
+                //console.log(moment());
+                //console.log(moment(data.MAKSE_KUUPÄEV, 'DD-MM-YYYY'));
+                if( moment().isAfter(moment(data.MAKSE_KUUPÄEV, 'DD-MM-YYYY'))) {
+                  $('td:eq(2)', row).addClass('bold-red');
+                }
+              },
+              columns: [
+                {data : 'ARVE_NUMBER'},
+                {data : 'ARVE_KUUPÄEV'},
+                {data : 'MAKSE_KUUPÄEV'},
+                {data : 'ARVE_SUMMA'},
+                {data : 'TASUTUD'},
+                {data : 'TASUMATA'},
+                {data : 'FILIAAL'}
+                ],
+              order   : [[2, 'asc']]
+
+            });
           })
       //delete modal contents
       $("body").on("click", ".close", function(){

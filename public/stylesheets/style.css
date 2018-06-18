@@ -7,6 +7,9 @@ body {
 a {
   color: #00B7FF;
 }
+h1 {
+  font-size: 24px;
+}
 td.details-control {
   background: url('/images/details_open.png') no-repeat center center;
   cursor: pointer;
@@ -44,9 +47,13 @@ td.stop-dist {
            visibility: visible;
        }
        #printSection {
-           position:absolute;
+/*           position:absolute;
            left:0;
-           top:0;
+           top:0;*/
+       }
+       .header-print {
+         display: table-header-group;
+         font-size: 24px;
        }
   }
 .borderless {
