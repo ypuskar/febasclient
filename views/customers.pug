@@ -375,6 +375,7 @@ block content
             var modal = $(this);
             var arvedurl = "/clients/customers/customers/"+recipient+"/arve";
             var kliendinimi = button.data('nimi');
+            var yleTahtaja = 0;
             var aeg = new Date();
             var kuu = ((aeg.getMonth().length+1)===1)? (aeg.getMonth() + 1) : "0" + (aeg.getMonth() + 1);
             $("#kliendinimi").text(kliendinimi + " tasumata arved seisuga " +
@@ -445,10 +446,63 @@ block content
               rowCallback: function(row, data, index) {
                 //console.log(moment());
                 //console.log(moment(data.MAKSE_KUUPÄEV, 'DD-MM-YYYY'));
+                // Remove the formatting to get integer data for summation
+                var intVal = function ( i ) {
+                  return typeof i === 'string' ?
+                      i.replace(/[\$,]/g, '')*1 :
+                      typeof i === 'number' ?
+                          i : 0;
+                };
                 if( moment().isAfter(moment(data.MAKSE_KUUPÄEV, 'DD-MM-YYYY'))) {
                   $('td:eq(2)', row).addClass('bold-red');
+                  yleTahtaja+=intVal(data.TASUMATA);
+                  //console.log(yleTahtaja);
                 }
               },
+              headerCallback: function( thead, data, start, end, display ) {
+                var api = this.api(), data;
+
+                // Remove the formatting to get integer data for summation
+                var intVal = function ( i ) {
+                  return typeof i === 'string' ?
+                      i.replace(/[\$,]/g, '')*1 :
+                      typeof i === 'number' ?
+                          i : 0;
+                };
+
+                // Total over all pages
+
+
+                total5 = api
+                  .column( 5 )
+                  .data()
+                  .reduce( function (a, b) {
+                      return intVal(a) + intVal(b);
+                  }, 0 );
+                total4 = api
+                  .column( 4 )
+                  .data()
+                  .reduce( function (a, b) {
+                      return intVal(a) + intVal(b);
+                  }, 0 );
+                total3 = api
+                  .column( 3 )
+                  .data()
+                  .reduce( function (a, b) {
+                      return intVal(a) + intVal(b);
+                  }, 0 );
+
+
+                  total5 = total5.toLocaleString('et-EE',{maximumFractionDigits: 2 });
+                  total4 = total4.toLocaleString('et-EE',{maximumFractionDigits: 2 });
+                  total3 = total3.toLocaleString('et-EE',{maximumFractionDigits: 2 });
+
+
+                $(thead).find('th').eq(5).html( 'Summa<br>'+(total5) );
+                $(thead).find('th').eq(4).html( 'Tasutud<br>'+(total4) );
+                $(thead).find('th').eq(3).html( 'Tasumata<br>'+(total3)+'<br>'
+                +'<span class="bold-red">'+yleTahtaja+'</span>' );
+                },
               columns: [
                 {data : 'ARVE_NUMBER'},
                 {data : 'ARVE_KUUPÄEV'},
@@ -459,9 +513,9 @@ block content
                 {data : 'FILIAAL'}
                 ],
               order   : [[2, 'asc']]
-
             });
-          })
+            //console.log(yleTahtaja);
+          });
       //delete modal contents
       $("body").on("click", ".close", function(){
         // delete arved content
