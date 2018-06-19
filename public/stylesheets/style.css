@@ -39,6 +39,11 @@ td.stop-dist {
   font-weight:bold;
   color:red;
 }
+.fix-height {
+  display: block;
+  height: 180px;
+  overflow-y: scroll;
+}
 @media print {
        body > *:not(#printSection) {
           display: none;
