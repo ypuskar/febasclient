@@ -64,23 +64,58 @@ exports.customer_feb = function(req, res) {
   });
 };
 exports.customer_feb_tekst = function (req, res) {
-  console.log(req.b)
-  DataStore.executesql(req, "UPDATE MR_KLIENDID SET KOMMENTAAR = '"+req.body.KOMMENTAAR+"'"+
-                      " WHERE ID = "+req.params.tekstId+" "+
-                      " INSERT INTO KOMMENTAARID (KLIENDI_ID, KOMMENTAAR, CREATED, CREATEDBY) "+
-                      " VALUES ("+req.params.tekstId+", '"+req.body.KOMMENTAAR+"', GETDATE(), '"+req.body.CREATEDBY+"');",
-                        function(result){
+console.log(req.b)
+DataStore.executesql(req, "UPDATE MR_KLIENDID SET KOMMENTAAR = '"+req.body.KOMMENTAAR+"'"+
+                    " WHERE ID = "+req.params.tekstId+" "+
+                    " INSERT INTO KOMMENTAARID (KLIENDI_ID, KOMMENTAAR, CREATED, CREATEDBY) "+
+                    " VALUES ("+req.params.tekstId+", '"+req.body.KOMMENTAAR+"', GETDATE(), '"+req.body.CREATEDBY+"');",
+                      function(result){
 
-  //console.log(req.body.CREATEDBY);
+//console.log(req.body.CREATEDBY);
 
- //console.log("CALLBACK TÖÖTAB");
+//console.log("CALLBACK TÖÖTAB");
 //  res.send('LÕPP KÄES');
-  res.redirect('/clients/customers/customers');
-  });
+res.redirect('/clients/customers/customers');
+});
 };
 exports.kommentaarid_json = function (req, res) {
-  DataStore.executesql(req, "SELECT k.ID, k.KOMMENTAAR, FORMAT(k.CREATED, 'dd/MM/yyyy') AS CREATED, k.CREATEDBY"+
-  " FROM KOMMENTAARID k WHERE KLIENDI_ID = " + req.params.kommId + " ORDER BY ID DESC",
+DataStore.executesql(req, "SELECT k.ID, k.KOMMENTAAR, FORMAT(k.CREATED, 'dd/MM/yyyy') AS CREATED, k.CREATEDBY"+
+" FROM KOMMENTAARID k WHERE KLIENDI_ID = " + req.params.kommId + " ORDER BY ID DESC",
+function(result){
+
+//console.log("CALLBACK TÖÖTAB");
+//  res.send('LÕPP KÄES');
+res.status(200).json(result);
+});
+};
+exports.arved_json = function (req, res) {
+DataStore.executesql(req, "SELECT k.ID, k.ARVE_NUMBER,"+
+" FORMAT(k.ARVE_KUUPÄEV, 'dd/MM/yyyy') AS ARVE_KUUPÄEV,"+
+" FORMAT(k.MAKSE_KUUPÄEV, 'dd/MM/yyyy') AS MAKSE_KUUPÄEV,"+
+" k.ARVE_SUMMA,"+
+" k.TASUTUD,"+
+" k.TASUMATA,"+
+" k.FILIAAL"+
+" FROM MR_ARVED k WHERE KLIENDI_ID = " + req.params.kommId +
+" ORDER BY ARVE_KUUPÄEV DESC",
+function(result){
+
+//console.log("CALLBACK TÖÖTAB");
+//  res.send('LÕPP KÄES');
+res.status(200).json(result);
+});
+};
+//kliendi kontaktisikute päring
+exports.kontaktid_json = function (req, res) {
+  DataStore.executesql(req, "SELECT k.ID, RTRIM(k.NIMI) AS NIMI,"+
+  " RTRIM(ISIKUKOOD) AS ISIKUKOOD,"+
+  " FORMAT(k.KEHTIVUS, 'dd/MM/yyyy') AS KEHTIVUS,"+
+  " RTRIM(k.TELEFON) AS TELEFON,"+
+  " RTRIM(k.EMAIL) AS EMAIL,"+
+  " k.BKAART,"+
+  " RTRIM(k.MARKUSED) AS MARKUSED"+
+  " FROM MR_VOLITUSED k WHERE KLIENDI_ID = " + req.params.kommId +
+  " ORDER BY NIMI ASC",
   function(result){
 
  //console.log("CALLBACK TÖÖTAB");
@@ -88,23 +123,6 @@ exports.kommentaarid_json = function (req, res) {
   res.status(200).json(result);
   });
   };
-  exports.arved_json = function (req, res) {
-    DataStore.executesql(req, "SELECT k.ID, k.ARVE_NUMBER,"+
-    " FORMAT(k.ARVE_KUUPÄEV, 'dd/MM/yyyy') AS ARVE_KUUPÄEV,"+
-    " FORMAT(k.MAKSE_KUUPÄEV, 'dd/MM/yyyy') AS MAKSE_KUUPÄEV,"+
-    " k.ARVE_SUMMA,"+
-    " k.TASUTUD,"+
-    " k.TASUMATA,"+
-    " k.FILIAAL"+
-    " FROM MR_ARVED k WHERE KLIENDI_ID = " + req.params.kommId +
-    " ORDER BY ARVE_KUUPÄEV DESC",
-    function(result){
-
-   //console.log("CALLBACK TÖÖTAB");
-  //  res.send('LÕPP KÄES');
-    res.status(200).json(result);
-    });
-    };
 exports.getAllClients = function(request, reply) {
 
     DataStore.getAllClients(function(err, results) {
