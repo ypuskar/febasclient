@@ -78,20 +78,20 @@ block content
               td.text-right.borderless Ainult maksetähtaeg ületanud:&nbsp
               td.text-left.borderless
                 input(name="tahtaeg", id="tahtaeg", type="checkbox")
-  table.stripe.order-column#pickle
-    thead
-      tr
-        th
-        th Tarne<br>keeld
-        th Kliendi nimi
-        th Aegumata
-        th 30P
-        th 180P
-        th Vanem
-        th Kokku
-        th Tarnitud
-        th Limiiti alles
-        th Arveid
+    table.stripe.order-column#pickle
+      thead
+        tr
+          th
+          th Tarne<br>keeld
+          th Kliendi nimi
+          th Aegumata
+          th 30P
+          th 180P
+          th Vanem
+          th Kokku
+          th Tarnitud
+          th Limiiti alles
+          th Arveid
 
   script.
     //table filter function
@@ -511,11 +511,12 @@ block content
                   total4 = total4.toLocaleString('et-EE',{maximumFractionDigits: 2 });
                   total3 = total3.toLocaleString('et-EE',{maximumFractionDigits: 2 });
 
+                  var yleaja = yleTahtaja.toLocaleString('et-EE',{maximumFractionDigits: 2 });
 
                 $(thead).find('th').eq(5).html( 'Summa<br>'+(total5) );
                 $(thead).find('th').eq(4).html( 'Tasutud<br>'+(total4) );
                 $(thead).find('th').eq(3).html( 'Tasumata<br>'+(total3)+'<br>'
-                +'<span class="bold-red">'+yleTahtaja+'</span>' );
+                +'<span class="bold-red">'+yleaja+'</span>' );
                 },
               columns: [
                 {data : 'ARVE_NUMBER'},
@@ -571,17 +572,16 @@ block content
       //console.log(d);
       var detailsTable = [];
       var kommentsTable = [];
-      var details = $('<div/>')
+      var details = $('<div id="details"></div>')
         .addClass( 'loading' )
         .text( 'Loading...' );
-      var tarnekeeld = "Ei";
-      if (!d.TARNEKEELD) { tarnekeeld = "Jah"};
+      //var tarnekeeld = "Ei";
+      //if (!d.TARNEKEELD) { tarnekeeld = "Jah"};
       //
       // Kommentaaride päring
       var url = "/clients/customers/customers/"+d.ID+"/komm";
       $.getJSON(url, function( data) { //read customer comments history from url
-
-        detailsTable[0] = '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">';
+        detailsTable[0] = '<div class="row"><div class="col-lg-12"><table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">';
         detailsTable[1] = '<tr>';
         detailsTable[2] = '<td class="alamtabel">Krediidilimiit</td>';
         detailsTable[3] = '<td>'+Number(d.KRED_LIMIIT).toFixed(2)+'</td>';
@@ -609,7 +609,8 @@ block content
         detailsTable[25] = '<tr>';
         detailsTable[26] = '<td class="alamtabel"></td>';
         //detailsTable[27] = '<td>'+d.KOMMENTAAR+'</td>';
-        detailsTable[28] = '<td><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#muudatekst" data-url="'+d.ID+
+        detailsTable[28] = '<td><button type="button" class="btn btn-primary"'+
+        ' data-toggle="modal" data-target="#muudatekst" data-url="'+d.ID+
         '" data-user= "'+ $('#sisseloginudkasutaja').text() +'" data-tekst="'+d.KOMMENTAAR+'">'+
         'Muuda kommentaar</button></td>';
         //detailsTable[29] = '<td><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#ajalugu" data-url="'+d.ID+'"> '+
@@ -619,32 +620,37 @@ block content
         //detailsTable[32] = '<td class="alamtabel">'+data[0].KOMMENTAAR+'</td>';
         //detailsTable[33] = '';
         //detailsTable[34] = '</tr>';
-        detailsTable[35] = '</table>';
-        detailsTable[36] = '<table class="fix-height" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">';
-        detailsTable[37] = '<tr><td class="alamtabel">Kommentaarid:</td><td></td><td></td><td></td></tr>';
+        detailsTable[35] = '</table></div></div>';
+        detailsTable[36] = '<div class="row"><div class="col-lg-6"><div class="panel panel-default">'+
+        '<div class="panel-heading alamtabel"><strong>Kommentaarid:</strong></div>'+
+        '<div class="panel-body">'+
+        '<table class="fix-height" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">';
+        detailsTable[37] = '<tr><td></td><td></td><td></td></tr>';
         //detailsTable[38] = '</tr>';
-        detailsTable[39] = '</table>';
+        detailsTable[39] = '</table></div></div></div>';
+        detailsTable[40] = '<div class="col-lg-6"><div class="panel panel-default">';
+        detailsTable[41] = '<div class="panel-heading alamtabel"><strong>Kontaktisikud:</strong></div>';
+        detailsTable[42] = '<div class="panel-body">Sisu';
+        detailsTable[42] = '</div></div></div>';
+
         //create comments Table
         console.log(data.length);
         if (data.length > 0) {
           for (var i=0; i < data.length; i++) {
-            kommentsTable[i] = '<tr><td></td><td>'+data[i].KOMMENTAAR+'</td><td>'+
+            kommentsTable[i] = '<tr><td>'+data[i].KOMMENTAAR+'</td><td>'+
             data[i].CREATED+ '</td><td>'+data[i].CREATEDBY+'</td></tr>';
           }
-        detailsTable[38] = kommentsTable.join();
+        detailsTable[38] = kommentsTable.join('');
         } else {
         detailsTable[38] = '<tr><td>Kommentaarid puuduvad</td></tr>';
         };
 
         details
-            .html(detailsTable.join())
+            .html(detailsTable.join(''))
             .removeClass('loading');
       });
       return details;
-
     //          for (var i = 1; i < ((data.length < 5) ? data.length : 5 ); i++) {
     //            '<tr class="alamtabel"><td>' +data[i].KOMMENTAAR+ '</td>'/*<td>" +data[i].CREATED+ "</td><td>"+data[i].CREATEDBY+"</td>*/+'</tr>'
     //          } +
-
-
     }
