@@ -435,7 +435,7 @@ block content
               method: "GET",
               dataSrc: ""
               },
-              dom: 'Blfrtip',
+              dom: 'Blrtip',
               buttons: [
                 'copy', 'csv', 'excel',
                 {
@@ -572,6 +572,7 @@ block content
       //console.log(d);
       var detailsTable = [];
       var kommentsTable = [];
+      var contactsTable = [];
       var details = $('<div id="details"></div>')
         .addClass( 'loading' )
         .text( 'Loading...' );
@@ -580,74 +581,95 @@ block content
       //
       // Kommentaaride päring
       var url = "/clients/customers/customers/"+d.ID+"/komm";
-      $.getJSON(url, function( data) { //read customer comments history from url
-        detailsTable[0] = '<div class="row"><div class="col-lg-12"><table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">';
-        detailsTable[1] = '<tr>';
-        detailsTable[2] = '<td class="alamtabel">Krediidilimiit</td>';
-        detailsTable[3] = '<td>'+Number(d.KRED_LIMIIT).toFixed(2)+'</td>';
-        //detailsTable[4] = '<td class="alamtabel">MÄRKUS 1</td>';
-        //detailsTable[5] = '<td>'+d.MÄRKUS_1+'</td>';
-        //detailsTable[6] = '<td class="alamtabel">KMregNR:</td>';
-        //detailsTable[7] = '<td>'+d.KMKN+'</td>';
-        //detailsTable[8] = '<td class="alamtabel">Märkus:</td>';
-        //detailsTable[9] = '<td>'+d.MÄRKUS_1+'</td>';
-        detailsTable[10] = '</tr>';
-        detailsTable[11] = '<tr>';
-        detailsTable[12] = '<td class="alamtabel">MÄRKUS:</td>';
-        detailsTable[13] = '<td>'+d.MÄRKUS_1+'</td>';
-        //detailsTable[14] = '<td class="alamtabel">Kred.limiit:</td>';
-        //detailsTable[15] = '<td>'+Number(d.KRED_LIMIIT).toFixed(2)+'</td>';
-        //detailsTable[16] = '<td class="alamtabel">Tarnekeeld:</td>';
-        //detailsTable[17] = '<td>'+tarnekeeld+'</td>';
-        //detailsTable[18] = '<td></td>';
-        detailsTable[19] = '<td>'+d.MÄRKUS_2+'</td>';
-        detailsTable[20] = '</tr>';
-        //detailsTable[21] = '<tr>';
-        //detailsTable[22] = '<td class="alamtabel">Maksmata arveid:</td>';
-        //detailsTable[23] = '<td>'+d.ARVEID+'</td>';
-        //detailsTable[23] = '</tr>';
-        detailsTable[25] = '<tr>';
-        detailsTable[26] = '<td class="alamtabel"></td>';
-        //detailsTable[27] = '<td>'+d.KOMMENTAAR+'</td>';
-        detailsTable[28] = '<td><button type="button" class="btn btn-primary"'+
-        ' data-toggle="modal" data-target="#muudatekst" data-url="'+d.ID+
-        '" data-user= "'+ $('#sisseloginudkasutaja').text() +'" data-tekst="'+d.KOMMENTAAR+'">'+
-        'Muuda kommentaar</button></td>';
-        //detailsTable[29] = '<td><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#ajalugu" data-url="'+d.ID+'"> '+
-        //'Ajalugu</button></td>';
-        detailsTable[30] = '</tr>';
-        //detailsTable[31] = '<tr>';
-        //detailsTable[32] = '<td class="alamtabel">'+data[0].KOMMENTAAR+'</td>';
-        //detailsTable[33] = '';
-        //detailsTable[34] = '</tr>';
-        detailsTable[35] = '</table></div></div>';
-        detailsTable[36] = '<div class="row"><div class="col-lg-6"><div class="panel panel-default">'+
-        '<div class="panel-heading alamtabel"><strong>Kommentaarid:</strong></div>'+
-        '<div class="panel-body">'+
-        '<table class="fix-height" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">';
-        detailsTable[37] = '<tr><td></td><td></td><td></td></tr>';
-        //detailsTable[38] = '</tr>';
-        detailsTable[39] = '</table></div></div></div>';
-        detailsTable[40] = '<div class="col-lg-6"><div class="panel panel-default">';
-        detailsTable[41] = '<div class="panel-heading alamtabel"><strong>Kontaktisikud:</strong></div>';
-        detailsTable[42] = '<div class="panel-body">Sisu';
-        detailsTable[42] = '</div></div></div>';
+      var kontaktUrl = "/clients/customers/customers/"+d.ID+"/kontakt";
+      $.getJSON(kontaktUrl, function( kontaktData) { //read customer comments history from url
+        $.getJSON(url, function( data) { //read customer comments history from url
+          detailsTable[0] = '<div class="row"><div class="col-lg-12"><table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">';
+          detailsTable[1] = '<tr>';
+          detailsTable[2] = '<td class="alamtabel">Krediidilimiit</td>';
+          detailsTable[3] = '<td>'+Number(d.KRED_LIMIIT).toFixed(2)+'</td>';
+          //detailsTable[4] = '<td class="alamtabel">MÄRKUS 1</td>';
+          //detailsTable[5] = '<td>'+d.MÄRKUS_1+'</td>';
+          //detailsTable[6] = '<td class="alamtabel">KMregNR:</td>';
+          //detailsTable[7] = '<td>'+d.KMKN+'</td>';
+          //detailsTable[8] = '<td class="alamtabel">Märkus:</td>';
+          //detailsTable[9] = '<td>'+d.MÄRKUS_1+'</td>';
+          detailsTable[10] = '</tr>';
+          detailsTable[11] = '<tr>';
+          detailsTable[12] = '<td class="alamtabel">MÄRKUS:</td>';
+          detailsTable[13] = '<td>'+d.MÄRKUS_1+'</td>';
+          //detailsTable[14] = '<td class="alamtabel">Kred.limiit:</td>';
+          //detailsTable[15] = '<td>'+Number(d.KRED_LIMIIT).toFixed(2)+'</td>';
+          //detailsTable[16] = '<td class="alamtabel">Tarnekeeld:</td>';
+          //detailsTable[17] = '<td>'+tarnekeeld+'</td>';
+          //detailsTable[18] = '<td></td>';
+          detailsTable[19] = '<td>'+d.MÄRKUS_2+'</td>';
+          detailsTable[20] = '</tr>';
+          //detailsTable[21] = '<tr>';
+          //detailsTable[22] = '<td class="alamtabel">Maksmata arveid:</td>';
+          //detailsTable[23] = '<td>'+d.ARVEID+'</td>';
+          //detailsTable[23] = '</tr>';
+          detailsTable[25] = '<tr>';
+          detailsTable[26] = '<td class="alamtabel"></td>';
+          //detailsTable[27] = '<td>'+d.KOMMENTAAR+'</td>';
+          detailsTable[28] = '<td><button type="button" class="btn btn-primary"'+
+          ' data-toggle="modal" data-target="#muudatekst" data-url="'+d.ID+
+          '" data-user= "'+ $('#sisseloginudkasutaja').text() +'" data-tekst="'+d.KOMMENTAAR+'">'+
+          'Muuda kommentaar</button></td>';
+          //detailsTable[29] = '<td><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#ajalugu" data-url="'+d.ID+'"> '+
+          //'Ajalugu</button></td>';
+          detailsTable[30] = '</tr>';
+          //detailsTable[31] = '<tr>';
+          //detailsTable[32] = '<td class="alamtabel">'+data[0].KOMMENTAAR+'</td>';
+          //detailsTable[33] = '';
+          //detailsTable[34] = '</tr>';
+          detailsTable[35] = '</table></div></div>';
+          detailsTable[36] = '<div class="row"><div class="col-lg-6"><div class="panel panel-default">'+
+          '<div class="panel-heading alamtabel"><strong>Kommentaarid:</strong></div>'+
+          '<div class="panel-body">'+
+          '<table class="fix-height" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">';
+          detailsTable[37] = '<tr><td></td><td></td><td></td></tr>';
+          //detailsTable[38] = '</tr>';
+          detailsTable[39] = '</table></div></div></div>';
+          detailsTable[40] = '<div class="col-lg-6"><div class="panel panel-default">';
+          detailsTable[41] = '<div class="panel-heading alamtabel"><strong>Kontaktisikud:</strong></div>';
+          detailsTable[42] = '<div class="panel-body"><table class="fix-height" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">';
+          detailsTable[43] = '<tr><td><strong>Nimi</strong></td><td><strong>Isikukood</strong></td>'+
+                            '<td><strong>Telefon</strong></td><td><strong>E-mail</strong></td>'+
+                            '<td><strong>Bkaart</strong></td><td><strong>Märkused</strong></td></tr>';
+          detailsTable[45] = '</table></div></div></div>';
 
-        //create comments Table
-        console.log(data.length);
-        if (data.length > 0) {
-          for (var i=0; i < data.length; i++) {
-            kommentsTable[i] = '<tr><td>'+data[i].KOMMENTAAR+'</td><td>'+
-            data[i].CREATED+ '</td><td>'+data[i].CREATEDBY+'</td></tr>';
-          }
-        detailsTable[38] = kommentsTable.join('');
-        } else {
-        detailsTable[38] = '<tr><td>Kommentaarid puuduvad</td></tr>';
-        };
+          //create comments Table
+          //console.log(kontaktData.length);
+          if (data.length > 0) {
+            for (var i=0; i < data.length; i++) {
+              kommentsTable[i] = '<tr><td>'+data[i].KOMMENTAAR+'</td><td>'+
+              data[i].CREATED+ '</td><td>'+data[i].CREATEDBY+'</td></tr>';
+            }
+          detailsTable[38] = kommentsTable.join('');
+          } else {
+          detailsTable[38] = '<tr><td>Kommentaarid puuduvad</td></tr>';
+          };
+          //create contacts table
+          if (kontaktData.length > 0) {
+            for (var i=0; i < kontaktData.length; i++) {
+              contactsTable[i] = '<tr><td>'+kontaktData[i].NIMI+'</td><td>'+
+              kontaktData[i].ISIKUKOOD+ '</td><td>'+kontaktData[i].KEHTIVUS+'</td>'+
+              kontaktData[i].TELEFON+'</td><td>'+
+              kontaktData[i].EMAIL+'</td><td>'+
+              kontaktData[i].BKAART+'</td><td>'+
+              kontaktData[i].MARKUSED+'</td>'+
+              '</tr>';
+            }
+          detailsTable[44] = contactsTable.join('');
+          } else {
+          detailsTable[43] = '<tr><td>Kontaktisikud puuduvad</td></tr>';
+          };
 
-        details
-            .html(detailsTable.join(''))
-            .removeClass('loading');
+          details
+              .html(detailsTable.join(''))
+              .removeClass('loading');
+        });
       });
       return details;
     //          for (var i = 1; i < ((data.length < 5) ? data.length : 5 ); i++) {
