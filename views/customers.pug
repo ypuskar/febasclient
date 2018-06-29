@@ -63,7 +63,7 @@ block content
   div.container-fluid
     div.row
       div.col-sm-8.text-center.feb_logo
-        h3 Feb AS kliendid
+        h3.whitetext .
       div.col-sm-4.text-right
         span Sisse loginud kasutaja:&nbsp
         span.font-weigth-bold#sisseloginudkasutaja  Kasutaja
@@ -78,6 +78,20 @@ block content
               td.text-right.borderless Ainult maksetähtaeg ületanud:&nbsp
               td.text-left.borderless
                 input(name="tahtaeg", id="tahtaeg", type="checkbox")
+            tr
+              td.text-right.borderless Tarnekeeld:&nbsp
+              td.text-left.borderless
+                | A:
+                input(name="tarnekeeld", id="tarnekeeldA", type="radio", value="A")
+                |  J:
+                input(name="tarnekeeld", id="tarnekeeldJ", type="radio", value="J")
+                //|  1:
+                //input(name="tarnekeeld", id="tarnekeeld1", type="radio", value="1")
+                |  2:
+                input(name="tarnekeeld", id="tarnekeeld2", type="radio", value="2")
+                |  X:
+                input(name="tarnekeeld", id="tarnekeeld0", type="radio", value="0", checked)
+
     table.stripe.order-column#pickle
       thead
         tr
@@ -97,13 +111,25 @@ block content
     //table filter function
     $.fn.dataTable.ext.search.push(
       function( settings, data, dataIndex, rowData, counter ) {
-        if($("#limiit").is(':checked') && ($("#tahtaeg").is(':checked')) && (rowData.YLE_LIMIIDI) && (rowData.YLE_MT) || (rowData.ARVE_NUMBER != null))
+        if($("#limiit").is(':checked') && ($("#tahtaeg").is(':checked')) &&
+        (rowData.YLE_LIMIIDI) && (rowData.YLE_MT) || (rowData.ARVE_NUMBER != null))
           return true;
-        else if($("#limiit").is(':checked') && !($("#tahtaeg").is(':checked')) && (rowData.YLE_LIMIIDI) )
+        else if($("#limiit").is(':checked') && !($("#tahtaeg").is(':checked')) &&
+        (rowData.YLE_LIMIIDI) )
           return true;
-        else if(!($("#limiit").is(':checked'))&&!($("#tahtaeg").is(':checked')))
+        else if(!($("#limiit").is(':checked'))&&!($("#tahtaeg").is(':checked'))&&($("#tarnekeeld0").is(':checked')))
           return true;
-        else if(($("#tahtaeg").is(':checked'))&&!($("#limiit").is(':checked'))&&(rowData.YLE_MT))
+        else if(($("#tahtaeg").is(':checked'))&&!($("#limiit").is(':checked'))&&
+        (rowData.YLE_MT))
+          return true;
+        else if(!($("#limiit").is(':checked'))&&!($("#tahtaeg").is(':checked'))&&
+        ($("#tarnekeeldA").is(':checked'))&&(rowData.TARNEKEELD == 'A'))
+          return true;
+        else if(!($("#limiit").is(':checked'))&&!($("#tahtaeg").is(':checked'))&&
+        ($("#tarnekeeldJ").is(':checked'))&&(rowData.TARNEKEELD == 'J'))
+          return true;
+        else if(!($("#limiit").is(':checked'))&&!($("#tahtaeg").is(':checked'))&&
+        ($("#tarnekeeld2").is(':checked'))&&(rowData.TARNEKEELD == '2'))
           return true;
         else
           return false;
@@ -565,12 +591,15 @@ block content
             $('.printMe').printElem();
           });
         //add events for table filters
-      $("#limiit").on("click", function() {
+        $(":checkbox, :radio").on("click", function() {
+            table.draw();
+          });
+      /*$("#limiit").on("click", function() {
           table.draw();
         });
       $("#tahtaeg").on("click", function() {
           table.draw();
-        });
+        });*/
     }); //end document ready
     //printimine
     jQuery.fn.extend({
