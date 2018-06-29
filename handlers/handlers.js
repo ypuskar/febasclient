@@ -10,7 +10,7 @@ exports.customer_list = function(req, res) {
 
   DataStore.executesql(req, 'SELECT TOP 10 k.[KLENDI_NIMI] as Kliendi_nimi, p.MT_NIMETUS as Maksetingimus FROM [MR_KLIENDID] k JOIN [MR_MAKSETINGIMUS] p ON k.MAKSETINGIMUS = p.MT', function(result){
 
- console.log("CALLBACK TÖÖTAB");
+ //console.log("CALLBACK TÖÖTAB");
  console.log(req.user);
 //  res.send('LÕPP KÄES');
   res.render('clients', {title: 'Vaatame, kas midagi tuleb', result: req.user});
@@ -60,11 +60,11 @@ exports.customer_feb = function(req, res) {
                         function(result){
 
 //  res.send('LÕPP KÄES');
-  res.render('customers', {title: 'Feb kliendid', result: result/*, user: req.user*/});
+  res.render('customers', {title: 'Feb kliendid', result: result, env: process.env.NODE_ENV/*, user: req.user*/});
   });
 };
 exports.customer_feb_tekst = function (req, res) {
-console.log(req.b)
+//console.log(req.b)
 DataStore.executesql(req, "UPDATE MR_KLIENDID SET KOMMENTAAR = '"+req.body.KOMMENTAAR+"'"+
                     " WHERE ID = "+req.params.tekstId+" "+
                     " INSERT INTO KOMMENTAARID (KLIENDI_ID, KOMMENTAAR, CREATED, CREATEDBY) "+
@@ -80,7 +80,7 @@ res.redirect('/clients/customers/customers');
 };
 exports.kommentaarid_json = function (req, res) {
 DataStore.executesql(req, "SELECT k.ID, k.KOMMENTAAR, FORMAT(k.CREATED, 'dd/MM/yyyy') AS CREATED, k.CREATEDBY"+
-" FROM KOMMENTAARID k WHERE KLIENDI_ID = " + req.params.kommId + " ORDER BY ID DESC",
+" FROM KOMMENTAARID k WHERE KLIENDI_ID = " + req.params.kommId + " ORDER BY k.CREATED DESC",
 function(result){
 
 //console.log("CALLBACK TÖÖTAB");
