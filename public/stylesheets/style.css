@@ -17,6 +17,9 @@ td.details-control {
 tr.shown td.details-control {
   background: url('/images/details_close.png') no-repeat center center;
   }
+.feb_logo {
+  background: url('/images/feb_logo.png') no-repeat left top;
+}
 
 td.data {font-size:9px}
 
