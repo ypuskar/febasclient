@@ -10,6 +10,9 @@ a {
 h1 {
   font-size: 24px;
 }
+h3.whitetext {
+  color: white;
+}
 td.details-control {
   background: url('/images/details_open.png') no-repeat center center;
   cursor: pointer;
