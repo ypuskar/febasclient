@@ -62,7 +62,7 @@ block content
           button.btn.btn-default.close(data-dismiss='modal') Sule
   div.container-fluid
     div.row
-      div.col-sm-8.text-center
+      div.col-sm-8.text-center.feb_logo
         h3 Feb AS kliendid
       div.col-sm-4.text-right
         span Sisse loginud kasutaja:&nbsp
@@ -138,38 +138,52 @@ block content
         },
         ];
       var tulemus = !{JSON.stringify(result)};
+      var environment = '!{env}';
       var sisseloginud = '';
-      //request for user information from Azure
-      $.ajax({
-        type : 'GET',
-        dataType: "html",
-        url: 'https://febascustomer.azurewebsites.net/.auth/me',
-        xhrFields: {
-          withCredentials: true
-          },
-        contentType:'application/json',
-        crossDomain : true,
-        cors: true,
-        secure: true,
-        headers: {
-                  'Access-Control-Allow-Origin': '*',
-                  'Upgrade-Insecure-Requests' : 1,
-                  'Cookie': 'ARRAffinity=06002adda7a6036d27bbc5c8cba727f785428765b842d3275fde5cd467e3e7e5; AppServiceAuthSession=aVR9HcLU1ikGYTRvlEk+SrKHJECFH6giuhLWREuAKQ0gx+kxT2HEy8Brhm+XVYuzQ9Eu5aGvIv5Ju21MvlJwVQgzKr8TYLboBcuYZuIUm631e7AwRanUW9JXjYcsAZw2/PtMRbC+aocZ1WZXecGIScj4xwTEX+hHF1FjZF21IQu5bRsh20saI6IK1CfHhvTlQxiUhbscz8VvfZ4eHPmHtsJUcZOW24ynOTNAGngRTiAJ1jMVAXFqZguMVh7q6NGypWZM3s7GKOe8TRQxi9e6FO0e6uudoJYg8h0Myn1xhottBGaw0J4F2uj+qxzskx/O/19SpbmyvzqBmojNPe5Qib9/T77oG3cdrBb1GVfO49TGtyFeAE4eweyWFzSiiRYsFGGdBLytq4dIvLKNfoE6PxlmeXfJIO2DR8ouPY1GZZbNXMbCiL+172TOw8DuxRVeL82hFCUwHpi16bbfSySLGA1siU9xQvibNY9JLx8vX9HPsv7CRR0j0+Ztu0RgBqeSmVMlatwqzDdMEP5Tym8QrSrjCC1Tk5kRWCuugFHhg5pxtAkUqbppE9cw0c8UNsYP7gy3Sb3dgZ9yWrEQbwnH1fp35NHaqJD7xcuQnB1OtOefc+cYV0FbH8+yrwolykzrdxR9Rf/Ha3UQCPnx8zuecKGJajV+5V890jjwP1f8H7Q3pmhNU3VroAPo3Z6VaUDPM5wcXaAqPPMxIQGOumIl5YLxoV4Y3lzciLxZY1JJdnlq7mGrth/+vzGsBXDHd1Kdqmo3p9LWPzxhVb81Y0LhzDG7/LPr+dG/a8nPGTg8zkSRC05sPNKmXqK3DdVB0u/K5K+r8VDckQlJmvmmw+48kw=='
-              },
-        })
-        .done(function(data) {
-        //console.log('SUCCESS');
-        var andmed = JSON.parse(data);
-        sisseloginud = andmed[0].user_claims[9].val;
-        $("#sisseloginudkasutaja").text(sisseloginud);
-        })
-        .fail(function( jqxhr, textStatus, error ) {
-        var err = textStatus + ", " + error;
-        sisseloginud = 'USER';
-        $("#sisseloginudkasutaja").text(sisseloginud);
-        console.log( "Request Failed: " + err );
+      var userUrl = '';
 
-      });
+      if( environment == 'production'){
+        userUrl = 'https://mrvolad.feb.ee/.auth/me';
+      } else if( environment == 'staging' ) {
+        userUrl = 'https://mrvolad-staging.azurewebsites.net/.auth/me';
+      };
+      if (userUrl != '') {
+
+        //request for user information from Azure
+        $.ajax({
+          type : 'GET',
+          dataType: "html",
+          url: userUrl,
+          xhrFields: {
+            withCredentials: true
+            },
+          contentType:'application/json',
+          crossDomain : true,
+          cors: true,
+          secure: true,
+          headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Upgrade-Insecure-Requests' : 1,
+                    'Cookie': 'ARRAffinity=06002adda7a6036d27bbc5c8cba727f785428765b842d3275fde5cd467e3e7e5; AppServiceAuthSession=aVR9HcLU1ikGYTRvlEk+SrKHJECFH6giuhLWREuAKQ0gx+kxT2HEy8Brhm+XVYuzQ9Eu5aGvIv5Ju21MvlJwVQgzKr8TYLboBcuYZuIUm631e7AwRanUW9JXjYcsAZw2/PtMRbC+aocZ1WZXecGIScj4xwTEX+hHF1FjZF21IQu5bRsh20saI6IK1CfHhvTlQxiUhbscz8VvfZ4eHPmHtsJUcZOW24ynOTNAGngRTiAJ1jMVAXFqZguMVh7q6NGypWZM3s7GKOe8TRQxi9e6FO0e6uudoJYg8h0Myn1xhottBGaw0J4F2uj+qxzskx/O/19SpbmyvzqBmojNPe5Qib9/T77oG3cdrBb1GVfO49TGtyFeAE4eweyWFzSiiRYsFGGdBLytq4dIvLKNfoE6PxlmeXfJIO2DR8ouPY1GZZbNXMbCiL+172TOw8DuxRVeL82hFCUwHpi16bbfSySLGA1siU9xQvibNY9JLx8vX9HPsv7CRR0j0+Ztu0RgBqeSmVMlatwqzDdMEP5Tym8QrSrjCC1Tk5kRWCuugFHhg5pxtAkUqbppE9cw0c8UNsYP7gy3Sb3dgZ9yWrEQbwnH1fp35NHaqJD7xcuQnB1OtOefc+cYV0FbH8+yrwolykzrdxR9Rf/Ha3UQCPnx8zuecKGJajV+5V890jjwP1f8H7Q3pmhNU3VroAPo3Z6VaUDPM5wcXaAqPPMxIQGOumIl5YLxoV4Y3lzciLxZY1JJdnlq7mGrth/+vzGsBXDHd1Kdqmo3p9LWPzxhVb81Y0LhzDG7/LPr+dG/a8nPGTg8zkSRC05sPNKmXqK3DdVB0u/K5K+r8VDckQlJmvmmw+48kw=='
+                },
+          })
+          .done(function(data) {
+          //console.log('SUCCESS');
+          var andmed = JSON.parse(data);
+          sisseloginud = andmed[0].user_claims[10].val;
+          $("#sisseloginudkasutaja").text(sisseloginud);
+          })
+          .fail(function( jqxhr, textStatus, error ) {
+          var err = textStatus + ", " + error;
+          sisseloginud = 'USER';
+          $("#sisseloginudkasutaja").text(sisseloginud);
+          console.log( "Request Failed: " + err );
+
+          });
+        } else {
+          sisseloginud = 'USER';
+          $("#sisseloginudkasutaja").text(sisseloginud);
+        };
 
       var kypsis = document.cookie;
       //console.log(kypsis);
@@ -340,7 +354,7 @@ block content
           var recipient = button.data('url') // Extract info from data-* attributes
           var createdby = button.data('user')
           var tekst = button.data('tekst');
-          console.log(tekst);
+          //console.log(tekst);
           if (tekst != null && tekst.length > 999){
           alert('Kommentaari pikkus võib maksimaalselt olla 1000 märki. Tee kommentaar lühemaks ja salvesta uuesti');
           return;
@@ -457,7 +471,7 @@ block content
                 }
                 }
               ],
-              rowCallback: function(row, data, index) {
+              createdRow: function(row, data, dataIndex) {
                 //console.log(moment());
                 //console.log(moment(data.MAKSE_KUUPÄEV, 'DD-MM-YYYY'));
                 // Remove the formatting to get integer data for summation
@@ -469,7 +483,8 @@ block content
                 };
                 if( moment().isAfter(moment(data.MAKSE_KUUPÄEV, 'DD-MM-YYYY'))) {
                   $('td:eq(2)', row).addClass('bold-red');
-                  yleTahtaja+=intVal(data.TASUMATA);
+                  $('td:eq(5)', row).addClass('yleaja');
+                  //yleTahtaja+=intVal(data.TASUMATA);
                   //console.log(yleTahtaja);
                 }
               },
@@ -505,7 +520,12 @@ block content
                   .reduce( function (a, b) {
                       return intVal(a) + intVal(b);
                   }, 0 );
-
+                yleTahtaja = api
+                  .cells( '.yleaja')
+                  .data()
+                  .reduce( function (a, b) {
+                      return intVal(a) + intVal(b);
+                  }, 0 );
 
                   total5 = total5.toLocaleString('et-EE',{maximumFractionDigits: 2 });
                   total4 = total4.toLocaleString('et-EE',{maximumFractionDigits: 2 });
@@ -513,10 +533,10 @@ block content
 
                   var yleaja = yleTahtaja.toLocaleString('et-EE',{maximumFractionDigits: 2 });
 
-                $(thead).find('th').eq(5).html( 'Summa<br>'+(total5) );
-                $(thead).find('th').eq(4).html( 'Tasutud<br>'+(total4) );
-                $(thead).find('th').eq(3).html( 'Tasumata<br>'+(total3)+'<br>'
+                $(thead).find('th').eq(5).html( 'Tasumata<br>'+(total5)+'<br>'
                 +'<span class="bold-red">'+yleaja+'</span>' );
+                $(thead).find('th').eq(4).html( 'Tasutud<br>'+(total4) );
+                $(thead).find('th').eq(3).html( 'Summa<br>'+(total3));
                 },
               columns: [
                 {data : 'ARVE_NUMBER'},
@@ -526,6 +546,9 @@ block content
                 {data : 'TASUTUD'},
                 {data : 'TASUMATA'},
                 {data : 'FILIAAL'}
+                ],
+              columnDefs: [
+                { className: "dt-right", "targets": [3,4,5] }
                 ],
               order   : [[2, 'asc']]
             });
@@ -582,8 +605,8 @@ block content
       // Kommentaaride päring
       var url = "/clients/customers/customers/"+d.ID+"/komm";
       var kontaktUrl = "/clients/customers/customers/"+d.ID+"/kontakt";
-      $.getJSON(kontaktUrl, function( kontaktData) { //read customer comments history from url
-        $.getJSON(url, function( data) { //read customer comments history from url
+      $.getJSON(kontaktUrl+'?'+new Date().getTime(), function( kontaktData) { //read customer comments history from url
+        $.getJSON(url+'?'+new Date().getTime(), function( data) { //read customer comments history from url
           detailsTable[0] = '<div class="row"><div class="col-lg-12"><table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">';
           detailsTable[1] = '<tr>';
           detailsTable[2] = '<td class="alamtabel">Krediidilimiit</td>';
@@ -635,6 +658,7 @@ block content
           detailsTable[41] = '<div class="panel-heading alamtabel"><strong>Kontaktisikud:</strong></div>';
           detailsTable[42] = '<div class="panel-body"><table class="fix-height" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">';
           detailsTable[43] = '<tr><td><strong>Nimi</strong></td><td><strong>Isikukood</strong></td>'+
+                            '<td><strong>Kehtivus</strong></td>'+
                             '<td><strong>Telefon</strong></td><td><strong>E-mail</strong></td>'+
                             '<td><strong>Bkaart</strong></td><td><strong>Märkused</strong></td></tr>';
           detailsTable[45] = '</table></div></div></div>';
@@ -653,8 +677,10 @@ block content
           //create contacts table
           if (kontaktData.length > 0) {
             for (var i=0; i < kontaktData.length; i++) {
-              contactsTable[i] = '<tr><td>'+kontaktData[i].NIMI+'</td><td>'+
-              kontaktData[i].ISIKUKOOD+ '</td><td>'+kontaktData[i].KEHTIVUS+'</td>'+
+              contactsTable[i] = '<tr><td>'+
+              kontaktData[i].NIMI+'</td><td>'+
+              kontaktData[i].ISIKUKOOD+ '</td><td>'+
+              kontaktData[i].KEHTIVUS+'</td><td>'+
               kontaktData[i].TELEFON+'</td><td>'+
               kontaktData[i].EMAIL+'</td><td>'+
               kontaktData[i].BKAART+'</td><td>'+
