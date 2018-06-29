@@ -102,6 +102,7 @@ block content
           th 30P
           th 180P
           th Vanem
+          th &Sigma;>Tähtaja
           th Kokku
           th Tarnitud
           th Limiiti alles
@@ -239,7 +240,7 @@ block content
             $('td:eq(2)', row).addClass('bold-red');
           }
           if(data.ARVEID > 0) {
-            $('td:eq(10)', row).attr({'data-toggle': 'modal', 'data-target': '#arved', 'role':'button', 'data-url': data.ID, 'data-nimi': data.Kliendi_nimi }).addClass('text-primary');
+            $('td:eq(11)', row).attr({'data-toggle': 'modal', 'data-target': '#arved', 'role':'button', 'data-url': data.ID, 'data-nimi': data.Kliendi_nimi }).addClass('text-primary');
           }
           },
         headerCallback: function( thead, data, start, end, display ) {
@@ -255,43 +256,50 @@ block content
 
           // Total over all pages
 
-          total8 = api
+          var total9 = api
+            .column( 9, {'filter': 'applied'} )
+            .data()
+            .reduce( function (a, b) {
+                return intVal(a) + intVal(b);
+            }, 0 );
+          var total8 = api
             .column( 8, {'filter': 'applied'} )
             .data()
             .reduce( function (a, b) {
                 return intVal(a) + intVal(b);
             }, 0 );
-          total7 = api
+          var total7 = api
             .column( 7, {'filter': 'applied'} )
             .data()
             .reduce( function (a, b) {
                 return intVal(a) + intVal(b);
             }, 0 );
-          total6 = api
+          var total6 = api
             .column( 6, {'filter': 'applied'} )
             .data()
             .reduce( function (a, b) {
                 return intVal(a) + intVal(b);
             }, 0 );
-          total5 = api
+          var total5 = api
             .column( 5, {'filter': 'applied'} )
             .data()
             .reduce( function (a, b) {
                 return intVal(a) + intVal(b);
             }, 0 );
-          total4 = api
+          var total4 = api
             .column( 4, {'filter': 'applied'} )
             .data()
             .reduce( function (a, b) {
                 return intVal(a) + intVal(b);
             }, 0 );
-          total3 = api
+          var total3 = api
             .column( 3, {'filter': 'applied'} )
             .data()
             .reduce( function (a, b) {
                 return intVal(a) + intVal(b);
             }, 0 );
 
+            total9 = Math.round(total9).toLocaleString('et-EE',{style: 'decimal' });
             total8 = Math.round(total8).toLocaleString('et-EE',{style: 'decimal' });
             total7 = Math.round(total7).toLocaleString('et-EE',{style: 'decimal' });
             total6 = Math.round(total6).toLocaleString('et-EE',{style: 'decimal' });
@@ -299,8 +307,9 @@ block content
             total4 = Math.round(total4).toLocaleString('et-EE',{style: 'decimal' });
             total3 = Math.round(total3).toLocaleString('et-EE',{style: 'decimal' });
 
-          $(thead).find('th').eq(8).html( 'Tarnitud<br>'+(total8) );
-          $(thead).find('th').eq(7).html( 'Kokku<br>'+(total7) );
+          $(thead).find('th').eq(9).html( 'Tarnitud<br>'+(total9) );
+          $(thead).find('th').eq(8).html( 'Kokku<br>'+(total8) );
+          $(thead).find('th').eq(7).html( '&Sigma;>Tähtaja<br>'+(total7) );
           $(thead).find('th').eq(6).html( 'Vanem<br>'+(total6) );
           $(thead).find('th').eq(5).html( '180P<br>'+(total5) );
           $(thead).find('th').eq(4).html( '30P<br>'+(total4) );
@@ -338,6 +347,8 @@ block content
            },
           { "data"     : "VANEM" ,
             "render"   : $.fn.dataTable.render.number( ' ', ',', 0 )},
+          { "data"     : "YLE_MT_KOKKU" ,
+            "render"   : $.fn.dataTable.render.number( ' ', ',', 0 )},
           { "data"     : "KOKKU" ,
             "render"   : $.fn.dataTable.render.number( ' ', ',', 0 )},
           { "data"     :  "TARNITUD",
@@ -347,10 +358,10 @@ block content
           { "data"     : "ARVEID" },
         ],
         "columnDefs": [
-          { className: "dt-right", "targets": [3,4,5,6,7,8,9,10] },
+          { className: "dt-right", "targets": [3,4,5,6,7,8,9,10,11] },
           { className: "dt-nowrap", "targets": [2] }
           ],
-        "order": [[2, 'asc']]
+        "order": [[7, 'desc']]
       });
       //
       // Add event listener for opening and closing details
