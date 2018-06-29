@@ -49,6 +49,8 @@ exports.customer_feb = function(req, res) {
                         ' k.TARNITUD,'+
                         ' k.VABA_LIMIIT,'+
                         ' k.YLE_MT,'+
+                        ' k.YLE_MT_KOKKU,'+
+                        ' k.TEHNIK,'+
                         ' k.YLE_LIMIIDI,'+
                         ' k.ARVEID'+
 //                        ' COUNT(a.ID) over (partition by k.id) AS [Maksmata_arveid],'+
