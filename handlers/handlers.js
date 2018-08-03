@@ -41,6 +41,7 @@ exports.customer_feb = function(req, res) {
                         ' k.[MÄRKUS_2],'+
                         ' k.KOMMENTAAR,'+
                         ' k.ID,'+
+                        ' k.KLIENDIKOOD,'+
                         ' k.AEGUMATA,'+
                         ' k.[30P],'+
                         ' k.[180P],'+
@@ -62,7 +63,7 @@ exports.customer_feb = function(req, res) {
                         function(result){
 
 //  res.send('LÕPP KÄES');
-  res.render('customers', {title: 'Feb kliendid', result: result, env: process.env.NODE_ENV/*, user: req.user*/});
+  res.render('customers', {title: 'FEB MR', result: result, env: process.env.NODE_ENV/*, user: req.user*/});
   });
 };
 exports.customer_feb_tekst = function (req, res) {
