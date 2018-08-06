@@ -29,6 +29,12 @@ exports.customer_json = function (req, res) {
 
 // SQL loads all Feb customers and joins maksetingimus
 exports.customer_feb = function(req, res) {
+  // check if user is authenticated
+if (!req.isAuthenticated()) {
+  console.log(req.user);
+} else {
+  console.log('NOT Authenticated');
+}
   DataStore.executesql(req, 'SELECT  DISTINCT k.[KLENDI_NIMI] as Kliendi_nimi,'+
                         ' k.[E_MAIL],'+
                         ' k.[TELEFON],'+
