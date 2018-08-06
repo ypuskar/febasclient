@@ -1,11 +1,12 @@
 //var Joi = require('joi');
 var express = require('express');
 var router = express.Router();
-var appfn = require('../app');
+//var appfn = require('../app');
 var Handlers = require('../handlers/handlers');
 var DataStore = require('../datastore/dataStore');
 var Customer = require('../module/customers');
 var Boom = require('boom');
+
 
 
 
