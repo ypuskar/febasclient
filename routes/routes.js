@@ -6,6 +6,7 @@ var Handlers = require('../handlers/handlers');
 var DataStore = require('../datastore/dataStore');
 var Customer = require('../module/customers');
 var Boom = require('boom');
+var passport = require('passport');
 
 
 
