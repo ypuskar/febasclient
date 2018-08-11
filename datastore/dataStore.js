@@ -104,11 +104,16 @@ connection.on('error', function(err)
     //      callback(jsonArray);
          });
       request.on('doneProc', function (rowCount, more, returnStatus, rows){
-      //    console.log("LOOOP");
+          console.log("doneProc");
       //    console.log(rows + ' row(s) returned');
           console.log('CALLBACK JSON ' + jsonArray.length);
           callback(jsonArray);
           jsonArray = [];
+      });
+      request.on('requestCompleted', function () {
+                  jsonArray = [];
+                  console.log('Closing connection');
+                  connection.close();
       });
       connection.execSql(request);
 
