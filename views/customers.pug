@@ -66,8 +66,12 @@ block content
         h3.whitetext .
       div.col-sm-4.text-right
         span Sisse loginud kasutaja:&nbsp
-        span.font-weigth-bold#sisseloginudkasutaja  Kasutaja
-        //- a.font-weight-bold(href='/logout')  Logi välja
+        if !user
+          span.font-weigth-bold#sisseloginudkasutaja  Kasutaja
+        else
+          span.font-weigth-bold#sisseloginudkasutaja #{user.profile.displayName}
+        //-
+        a.font-weight-bold(href='/logout')  Logi välja
         table.table.table-sm(style="width:100%")
           tbody
             tr
@@ -170,9 +174,9 @@ block content
       var userUrl = '';
 
       if( environment == 'production'){
-        userUrl = 'https://mrvolad.feb.ee/.auth/me';
+        //userUrl = 'https://mrvolad.feb.ee/.auth/me';
       } else if( environment == 'staging' ) {
-        userUrl = 'https://mrvolad-staging.azurewebsites.net/.auth/me';
+        //userUrl = 'https://mrvolad-staging.azurewebsites.net/.auth/me';
       };
       if (userUrl != '') {
 
@@ -208,14 +212,14 @@ block content
 
           });
         } else {
-          sisseloginud = 'USER';
-          $("#sisseloginudkasutaja").text(sisseloginud);
+          //sisseloginud = 'USER';
+          //$("#sisseloginudkasutaja").text(sisseloginud);
         };
 
       var kypsis = document.cookie;
       //console.log(kypsis);
 
-      console.log(tulemus.length);
+      //console.log(tulemus.length);
       //
       //Põhiaknasse kuvatav klientide tabel
       //
@@ -407,25 +411,17 @@ block content
       //
       // Ajalugu nupu modaal
       //
-      $('#ajalugu').on('show.bs.modal', function (event) {
-            //console.log('MODAL');
-            var button = $(event.relatedTarget) // Button that triggered the modal
-            var recipient = button.data('url') // Extract info from data-* attributes
+      $(document).on('click', '#SPlink', function (event) {
+
+            //var button = $(event.relatedTarget) // Button that triggered the modal
+            var SPLeping = $(this).attr('data-url') // Extract info from data-* attributes
             // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
             // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
-            var modal = $(this);
-            var url = "/clients/customers/customers/"+recipient+"/komm";
-            $.getJSON(url, function( data) { //read customer comments history from url
-
-
-                $(".kommentaar").remove();
-                for (var i = 0; i < data.length; i++) {
-                  var row = ("<tr class='kommentaar'><td>" +data[i].KOMMENTAAR+ "</td><td>" +data[i].CREATED+ "</td><td>"+data[i].CREATEDBY+"</td></tr>")
-                  $("#kommTabel tbody").append(row);
-                }
-
-            })
-          })
+            //var modal = $(this);
+            //console.log(SPLeping);
+            var url = "https://febas.sharepoint.com/Lists/Kliendilepingud/DispForm.aspx?ID="+SPLeping;
+            window.open(url, '_blank');
+          });
       //listener for arved modal
       $('#arved').on('show.bs.modal', function (event) {
             //console.log('MODAL');
@@ -597,16 +593,16 @@ block content
           $(".arve").remove();
           $(".kommentaar").remove();
           });
-        //add print id for printing area
+      //add print id for printing area
       $(document).on('click', '#btnPrint', function(){
             $('.printMe').printElem();
           });
-        //add events for table filters
-        $(":checkbox, :radio").on("click", function() {
-            table.draw();
-          });
-      /*$("#limiit").on("click", function() {
+      //add events for table filters
+      $(":checkbox, :radio").on("click", function() {
           table.draw();
+          });
+      /*$(document).on("click", "#SPlink", function() {
+          console.log('linKKK');
         });
       $("#tahtaeg").on("click", function() {
           table.draw();
@@ -672,16 +668,19 @@ block content
           //detailsTable[22] = '<td class="alamtabel">Maksmata arveid:</td>';
           //detailsTable[23] = '<td>'+d.ARVEID+'</td>';
           //detailsTable[23] = '</tr>';
-          detailsTable[25] = '<tr>';
+          detailsTable[25] = '<tr>';//button row starts
           detailsTable[26] = '<td class="alamtabel"></td>';
           //detailsTable[27] = '<td>'+d.KOMMENTAAR+'</td>';
-          detailsTable[28] = '<td><button type="button" class="btn btn-primary"'+
+          detailsTable[28] = '<td><button type="button" class="btn btn-primary btn-sm"'+
           ' data-toggle="modal" data-target="#muudatekst" data-url="'+d.ID+
           '" data-user= "'+ $('#sisseloginudkasutaja').text() +'" data-tekst="'+d.KOMMENTAAR+'">'+
           'Muuda kommentaar</button></td>';
-          //detailsTable[29] = '<td><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#ajalugu" data-url="'+d.ID+'"> '+
-          //'Ajalugu</button></td>';
-          detailsTable[30] = '</tr>';
+
+          if(d.SP_ID != null) {
+            detailsTable[29] = '<td><button type="button" id="SPlink" class="btn btn-primary btn-sm" data-url="'+d.SP_ID+'"> '+
+            'SP Leping</button></td>';
+          }
+          detailsTable[30] = '</tr>'; //button row ends
           //detailsTable[31] = '<tr>';
           //detailsTable[32] = '<td class="alamtabel">'+data[0].KOMMENTAAR+'</td>';
           //detailsTable[33] = '';
