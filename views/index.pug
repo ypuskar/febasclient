@@ -8,5 +8,6 @@ block content
     if !user
       a(href="/login") Logi sisse oma AD kontoga
     else
-      p  Tere tulemast #{user.displayName}!
+      p  Tere tulemast #{user.profile.displayName}!
+      p !{JSON.stringify(user)}
       a(href="/logout") Log Out
