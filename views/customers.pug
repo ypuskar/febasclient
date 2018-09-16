@@ -113,7 +113,7 @@ block content
           th Arveid
 
   script.
-    //table filter function
+    //table filtering functions
     $.fn.dataTable.ext.search.push(
       function( settings, data, dataIndex, rowData, counter ) {
         if($("#limiit").is(':checked') && ($("#tahtaeg").is(':checked')) &&
@@ -156,6 +156,12 @@ block content
           return moment( d, format, locale, true ).unix();
       };
     };
+    //change cursor during ajax call
+    $(document).ajaxStart(function() {
+      $(document.body).css({'cursor' : 'wait'});
+      }).ajaxStop(function() {
+      $(document.body).css({'cursor' : 'default'});
+      });
     $(document).ready(function() {
       $.fn.dataTable.moment( 'DD/MM/YYYY' );
       var testdata = [
@@ -208,7 +214,7 @@ block content
           var err = textStatus + ", " + error;
           sisseloginud = 'USER';
           $("#sisseloginudkasutaja").text(sisseloginud);
-          console.log( "Request Failed: " + err );
+          //console.log( "Request Failed: " + err );
 
           });
         } else {
@@ -225,6 +231,7 @@ block content
       //
       var table = $('#pickle').DataTable({
         dom: 'Blfrtip',
+        pageLength: 100,
         buttons: [
           'copy', 'csv', 'excel', 'pdf',
           {
@@ -240,14 +247,20 @@ block content
         deferRender: true,
         stateSave: true,
         data: tulemus,
+        // Add red color to customer
         rowCallback: function(row, data, index) {
           if( data.YLE_MT == 1 || data.VABA_LIMIIT < 0 ) {
             $('td:eq(2)', row).addClass('bold-red');
           }
           if(data.ARVEID > 0) {
-            $('td:eq(11)', row).attr({'data-toggle': 'modal', 'data-target': '#arved', 'role':'button', 'data-url': data.ID, 'data-nimi': data.Kliendi_nimi }).addClass('text-primary');
+            $('td:eq(11)', row).attr({'data-toggle': 'modal',
+             'data-target': '#arved', 'role':'button',
+             'data-url': data.ID, 'data-nimi': data.Kliendi_nimi,
+              'data-email': data.E_MAIL})
+             .addClass('text-primary');
           }
           },
+          // Calculate Totals over all columns/pages
         headerCallback: function( thead, data, start, end, display ) {
           var api = this.api(), data;
 
@@ -258,8 +271,8 @@ block content
                 typeof i === 'number' ?
                     i : 0;
           };
+          //
 
-          // Total over all pages
 
           var total9 = api
             .column( 9, {'filter': 'applied'} )
@@ -369,12 +382,17 @@ block content
         "order": [[7, 'desc']]
       });
       //
-      // Add event listener for opening and closing details
+      // Add event listener for opening and closing row details
       //
       $('#pickle tbody').on('click', 'td.details-control', function () {
         var tr = $(this).closest('tr');
+        //Find opened row number
         var row = table.row( tr );
-        //console.log("EVENT WORKS");
+        //console.log(row);
+        var rownr = (row[0].toString());
+        //write row number to rownr attribute
+        tr.attr("rownr" , "rownr" + rownr);
+        //console.log(tr);
         if ( row.child.isShown() ) {
           // This row is already open - close it
           row.child.hide();
@@ -383,12 +401,12 @@ block content
           else {
           // Open this row
           //alert("avan rea");
-          row.child( formaat(row.data()) ).show();
+          row.child( formaat(row.data(), "rownr" + rownr) ).show();
           tr.addClass('shown');
           }
           } ); //listener for green button
       //
-      //listener for muuda tekst modal parameters
+      //listener for modal open
       //
       $('#muudatekst').on('show.bs.modal', function (event) {
           //console.log('MODAL');
@@ -396,7 +414,7 @@ block content
           var recipient = button.data('url') // Extract info from data-* attributes
           var createdby = button.data('user')
           var tekst = button.data('tekst');
-          //console.log(tekst);
+          //console.log(createdby);
           if (tekst != null && tekst.length > 999){
           alert('Kommentaari pikkus võib maksimaalselt olla 1000 märki. Tee kommentaar lühemaks ja salvesta uuesti');
           return;
@@ -407,10 +425,46 @@ block content
           modal.find('.modal-body input[name="KOMMENTAAR"]').val(tekst);
           modal.find('.modal-body form').attr('action', '/clients/customers/customers/'+recipient+'/update');
           modal.find('.modal-body input[name="CREATEDBY"]').val(createdby);
+          modal.find('.modal-body button').attr("id", "nuppMuudaKommentaar")
+          .attr("data-rn", button.data('rn'))
+          .attr("data-url", '/clients/customers/customers/'+recipient+'/update');
           })
-        //listener for tekst arhiivi table creation
-      //
-      // Ajalugu nupu modaal
+
+      /*
+      * Listener for Comments Save button #nuppMuudaKommentaar
+      */
+      $(document).on('click', '#nuppMuudaKommentaar' , function(event) {
+        event.preventDefault();
+        var url = '';
+        var button = $(event.relatedTarget);
+        //find row identificator
+        var rn = parseInt(event.target.dataset.rn.replace('rownr',''));
+        url = event.target.dataset.url;
+        //console.log(event.target.dataset.url);
+        modal=$("#muudatekst");
+        var tekst = modal.find('.modal-body input[name="KOMMENTAAR"]').val();
+        if (tekst != null && tekst.length > 999){
+          alert('Kommentaari pikkus võib maksimaalselt olla 1000 märki. Tee kommentaar lühemaks ja salvesta uuesti');
+          return;
+        } else {
+          var createdby = modal.find('.modal-body input[name="CREATEDBY"]').val();
+          //console.log($(this));
+          //ajax post comments to database
+          $.post( url,
+            {KOMMENTAAR: tekst,
+            CREATEDBY: createdby
+            }, function () {
+              var row = table.row(rn);
+              row.child( formaat(row.data(), "rownr" + rn) ).show();
+              $('#muudatekst').modal('hide');
+            });
+          //find row that opened modal
+          //var row = document.querySelector('tr[rownr="'+rn+'"]');
+        }
+      });
+
+      // Listener for SP Leping button
+      // Avab SP lepingu uues aknas
       //
       $(document).on('click', '#SPlink', function (event) {
 
@@ -423,7 +477,44 @@ block content
             var url = "https://febas.sharepoint.com/Lists/Kliendilepingud/DispForm.aspx?ID="+SPLeping;
             window.open(url, '_blank');
           });
+      // Listener for Loo SP Leping
+      // Loob SP lepingu ja avab selle redigeerimiseks uues aknas
+      //
+      $(document).on('click', '#SPcreate', function (event) {
+            $('body').addClass('waiting');
+            //var button = $(event.relatedTarget); // Button that triggered the modal
+            var SPLeping = $(this).attr('data-url'); // Extract info from data-* attributes
+            var SPNimi = $(this).attr('data-name');
+            // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+            // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+            //var modal = $(this);
+            //console.log(SPLeping);
+            var url = "/test/"+SPLeping+"/"+SPNimi+"/0";
+
+            //
+            // API call "add" customer to SP
+            //
+            $.getJSON(url, function (vastus) {
+              //alert(JSON.parse(vastus).LepingId);
+              var urluus = "https://febas.sharepoint.com/Lists/Kliendilepingud/EditForm.aspx?ID="+
+              JSON.parse(vastus).LepingId;
+              $('body').removeClass('waiting');
+              location.reload();
+              var win = window.open(urluus, '_blank');
+              if (win) {
+                win.focus();
+              } else {
+              alert('Luba sellel saidil popup aknad, muidu ei saa avada kliendilepingu redigeerimise akent!');
+              }
+
+            });
+            //window.open(url, '_blank');
+        });
+
+
+      //
       //listener for arved modal
+      //
       $('#arved').on('show.bs.modal', function (event) {
             //console.log('MODAL');
             var button = $(event.relatedTarget) // Button that triggered the modal
@@ -434,11 +525,18 @@ block content
             var arvedurl = "/clients/customers/customers/"+recipient+"/arve";
             var kliendinimi = button.data('nimi');
             var yleTahtaja = 0;
+            var mail = button.data('email');
             var aeg = new Date();
             var kuu = ((aeg.getMonth().length+1)===1)? (aeg.getMonth() + 1) : "0" + (aeg.getMonth() + 1);
-            $("#kliendinimi").text(kliendinimi + " tasumata arved seisuga " +
+            $("#kliendinimi").text(kliendinimi + " ( "+ mail
+            +" ) tasumata arved seisuga " +
             aeg.getDate()+"/"+ kuu +
             "/"+ aeg.getFullYear());
+
+
+            /*
+            * Kasutusest maas arvete tabel
+            */
             /*$.getJSON(url, function( dataArved) { //read customer invoices from url
 
               if (dataArved.length > 0) {
@@ -475,7 +573,6 @@ block content
             //
             //Modaalaknasse kuvatav arvete tabel
             //
-
             var arvetable = $('#arveTabel').DataTable({
               destroy: true,
               ajax: {
@@ -576,9 +673,12 @@ block content
                 {data : 'ARVE_NUMBER'},
                 {data : 'ARVE_KUUPÄEV'},
                 {data : 'MAKSE_KUUPÄEV'},
-                {data : 'ARVE_SUMMA'},
-                {data : 'TASUTUD'},
-                {data : 'TASUMATA'},
+                {data : 'ARVE_SUMMA',
+                "render"   : $.fn.dataTable.render.number( ' ', ',', 2 )},
+                {data : 'TASUTUD',
+                "render"   : $.fn.dataTable.render.number( ' ', ',', 2 )},
+                {data : 'TASUMATA',
+                "render"   : $.fn.dataTable.render.number( ' ', ',', 2 )},
                 {data : 'FILIAAL'}
                 ],
               columnDefs: [
@@ -590,24 +690,39 @@ block content
           });
       //delete modal contents
       $("body").on("click", ".close", function(){
-        // delete arved content
+        // delete arved and kommentaar content
           $(".arve").remove();
           $(".kommentaar").remove();
           });
+
       //add print id for printing area
       $(document).on('click', '#btnPrint', function(){
             $('.printMe').printElem();
           });
+
       //add events for table filters
       $(":checkbox, :radio").on("click", function() {
           table.draw();
           });
-      /*$(document).on("click", "#SPlink", function() {
-          console.log('linKKK');
-        });
-      $("#tahtaeg").on("click", function() {
-          table.draw();
-        });*/
+
+      //delete comments event
+      $(document).on("click", ".deleterow", function (e){
+        if(confirm('Kas soovid kommentaari kustutada?')) {
+          var rn = parseInt($(this).closest('table[data-rn]').data('rn').replace('rownr',''));
+          var row = table.row(rn);
+          var url = "/clients/customers/customers/deletecomment";
+          var comment={};
+          comment.kommId = parseInt((e.target.id).substring(4));
+          comment.deleted = $('#sisseloginudkasutaja').text();
+          $.post(url, comment, function(){
+          //location.reload();
+          row.child( formaat(row.data(), "rownr" + rn) ).show();
+          });
+        } else {
+          e.preventDefault();
+        }
+
+      });
     }); //end document ready
     //printimine
     jQuery.fn.extend({
@@ -627,7 +742,7 @@ block content
         toggleBody.show();
     	}
     });
-    function formaat ( d ) {
+    function formaat ( d, rn ) {
       // `d` is the original data object for the row
       //console.log(d);
       var detailsTable = [];
@@ -644,7 +759,9 @@ block content
       var kontaktUrl = "/clients/customers/customers/"+d.ID+"/kontakt";
       $.getJSON(kontaktUrl+'?'+new Date().getTime(), function( kontaktData) { //read customer comments history from url
         $.getJSON(url+'?'+new Date().getTime(), function( data) { //read customer comments history from url
-          detailsTable[0] = '<div class="row"><div class="col-lg-12"><table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">';
+          detailsTable[0] = '<div class="row"><div class="col-lg-12">'
+          +'<table cellpadding="5" cellspacing="0" border="0"'
+          +' style="padding-left:50px;">';
           detailsTable[1] = '<tr>';
           detailsTable[2] = '<td class="alamtabel">Krediidilimiit</td>';
           detailsTable[3] = '<td>'+Number(d.KRED_LIMIIT).toFixed(2)+'</td>';
@@ -652,9 +769,9 @@ block content
           detailsTable[5] = '<td>'+d.TEHNIK+'</td>';
           detailsTable[6] = '<td class="alamtabel">Kliendikood:</td>';
           detailsTable[7] = '<td>'+d.KLIENDIKOOD+'</td>';
-          //detailsTable[8] = '<td class="alamtabel">Märkus:</td>';
-          //detailsTable[9] = '<td>'+d.MÄRKUS_1+'</td>';
-          detailsTable[10] = '</tr>';
+          detailsTable[8] = '<td class="alamtabel">Koondarve:</td>';
+          detailsTable[9] = '<td>'+d.KOONDARVE+' korda kuus</td>';
+          detailsTable[10] = '</tr>'; //1 row end
           detailsTable[11] = '<tr>';
           detailsTable[12] = '<td class="alamtabel">MÄRKUS:</td>';
           detailsTable[13] = '<td>'+d.MÄRKUS_1+'</td>';
@@ -669,17 +786,23 @@ block content
           //detailsTable[22] = '<td class="alamtabel">Maksmata arveid:</td>';
           //detailsTable[23] = '<td>'+d.ARVEID+'</td>';
           //detailsTable[23] = '</tr>';
-          detailsTable[25] = '<tr>';//button row starts
+          detailsTable[25] = '<tr>';//buttons row starts
           detailsTable[26] = '<td class="alamtabel"></td>';
           //detailsTable[27] = '<td>'+d.KOMMENTAAR+'</td>';
+          //Button Muudakommentaar
           detailsTable[28] = '<td><button type="button" class="btn btn-primary btn-sm"'+
           ' data-toggle="modal" data-target="#muudatekst" data-url="'+d.ID+
-          '" data-user= "'+ $('#sisseloginudkasutaja').text() +'" data-tekst="'+d.KOMMENTAAR+'">'+
+          '" data-user= "'+ $('#sisseloginudkasutaja').text() +'" data-tekst="'+d.KOMMENTAAR+
+          '" data-rn="'+rn+'">'+
           'Muuda kommentaar</button></td>';
-
+          //Button open SP Leping
           if(d.SP_ID != null) {
             detailsTable[29] = '<td><button type="button" id="SPlink" class="btn btn-primary btn-sm" data-url="'+d.SP_ID+'"> '+
             'SP Leping</button></td>';
+          } else if (d.REG_NR != ''){
+          detailsTable[29] = '<td><button type="button" id="SPcreate" class="btn btn-primary btn-sm" data-url="'+
+          d.REG_NR+'" '+ ' data-name="'+d.Kliendi_nimi+'">'+
+          'Uus SP Leping</button></td>';
           }
           detailsTable[30] = '</tr>'; //button row ends
           //detailsTable[31] = '<tr>';
@@ -690,7 +813,8 @@ block content
           detailsTable[36] = '<div class="row"><div class="col-lg-6"><div class="panel panel-default">'+
           '<div class="panel-heading alamtabel"><strong>Kommentaarid:</strong></div>'+
           '<div class="panel-body">'+
-          '<table class="fix-height" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">';
+          '<table class="fix-height" cellpadding="5" cellspacing="0"'
+          +' border="0" style="padding-left:50px;" data-rn="'+rn+'">';
           detailsTable[37] = '<tr><td></td><td></td><td></td></tr>';
           //detailsTable[38] = '</tr>';
           detailsTable[39] = '</table></div></div></div>';
@@ -707,8 +831,11 @@ block content
           //console.log(kontaktData.length);
           if (data.length > 0) {
             for (var i=0; i < data.length; i++) {
-              kommentsTable[i] = '<tr><td>'+data[i].KOMMENTAAR+'</td><td>'+
+              //console.log(data[i].DELETED);
+              if(!data[i].DELETED) {
+              kommentsTable[i] = '<tr><td class="deleterow" id="komm'+data[i].ID+'"></td><td>'+data[i].KOMMENTAAR+'</td><td>'+
               data[i].CREATED+ '</td><td>'+data[i].CREATEDBY+'</td></tr>';
+              }
             }
           detailsTable[38] = kommentsTable.join('');
           } else {
@@ -735,8 +862,8 @@ block content
           details
               .html(detailsTable.join(''))
               .removeClass('loading');
-        });
-      });
+        }); //end getJSON
+      }); //end getJSON
       return details;
     //          for (var i = 1; i < ((data.length < 5) ? data.length : 5 ); i++) {
     //            '<tr class="alamtabel"><td>' +data[i].KOMMENTAAR+ '</td>'/*<td>" +data[i].CREATED+ "</td><td>"+data[i].CREATEDBY+"</td>*/+'</tr>'
