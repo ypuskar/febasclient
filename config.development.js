@@ -1,5 +1,5 @@
 var tenantName    = 'febas';
-var clientID      = 'cd40b934-7653-46d6-811e-1e33ef2b54b6';
+var clientID      = 'd2bcef36-c787-4a90-ab2b-0c59a78b9ab8';
 var serverPort    = 3000;
 var prodserver    = 'localhost:3000'; //'febascustomer.azurewebsites.net';
 
@@ -36,7 +36,7 @@ module.exports.creds = {
   allowHttpForRedirectUrl: true,
   // Required if `responseType` is 'code', 'id_token code' or 'code id_token'.
   // If app key contains '\', replace it with '\\'.
-  clientSecret: 'uMVWQsBFKNAXCp0hz6iyGMVD+QfFGPHSMEIVXr2ouNw=',
+  clientSecret: 'QZ922UoJnOrYQ1twAkzCEyYA6+gpefAOOkCh9GyF3YA=',
   // Required to set to false if you don't want to validate issuer
   validateIssuer: false,
   // Required to set to true if you are using B2C endpoint

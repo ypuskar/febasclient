@@ -17,9 +17,10 @@ router.get('/', Handlers.customer_list);
 router.get('/json/', Handlers.customer_json);
 router.get('/customers/', Handlers.customer_feb);
 router.post('/customers/:tekstId/update', Handlers.customer_feb_tekst);
+router.post('/customers/deletecomment', Handlers.delete_comment);
 router.get('/customers/:kommId/komm', Handlers.kommentaarid_json);
 router.get('/customers/:kommId/arve', Handlers.arved_json);
 router.get('/customers/:kommId/kontakt', Handlers.kontaktid_json);
-
+router.post('/sendMail', Handlers.sendMail);
 
 module.exports = router;

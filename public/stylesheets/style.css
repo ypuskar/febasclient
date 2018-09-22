@@ -38,6 +38,11 @@ td.stop-dist {
        }
   }
 */
+td.deleterow {
+  background: url('/images/delete-24.png') no-repeat center center;
+  cursor: pointer;
+  }
+
 .bold {
   font-weight:bold;
 }
@@ -70,4 +75,7 @@ td.stop-dist {
 .borderless {
       border: none !important;
       padding: 2px !important;
+}
+body.waiting * {
+  cursor: progress;
 }

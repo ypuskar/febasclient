@@ -25,7 +25,7 @@ var config =
 
 var jsonArray = [];
 
-exports.executesql = function(muutuja, sqlstatement, callback) {
+exports.executesql = function(muutuja, sqlstatement, callback, mobjekt) {
     var connection = new Connection(config);
 
     connection.on('connect', function(err)
@@ -72,7 +72,7 @@ connection.on('error', function(err)
                function(err, rowCount, rows)
                   {
                     if (err) {
-                      console.log("CONNECTION ERROR" + sqlstatement);
+                      console.log("REQUEST ERROR " + sqlstatement);
                       callback(err);
                     } else {
 
@@ -107,7 +107,7 @@ connection.on('error', function(err)
           console.log("doneProc");
       //    console.log(rows + ' row(s) returned');
           console.log('CALLBACK JSON ' + jsonArray.length);
-          callback(jsonArray);
+          callback(jsonArray, mobjekt);
           jsonArray = [];
       });
       request.on('requestCompleted', function () {
