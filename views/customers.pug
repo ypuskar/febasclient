@@ -1,5 +1,6 @@
 extends layout
 block content
+  //modaalaknad
   #muudatekst.modal(tabindex="-1", role="dialog", aria-labelledby="myModalLabel", aria-hidden="true")
     .modal-dialog
       .modal-content
@@ -72,6 +73,7 @@ block content
           span.font-weigth-bold#sisseloginudkasutaja #{user.profile.displayName}
         //-
         a.font-weight-bold(href='/logout')  Logi välja
+        //filtriväljade definitsioonid
         table.table.table-sm(style="width:100%")
           tbody
             tr
@@ -95,7 +97,7 @@ block content
                 input(name="tarnekeeld", id="tarnekeeld2", type="radio", value="2")
                 |  X:
                 input(name="tarnekeeld", id="tarnekeeld0", type="radio", value="0", checked)
-
+    // klientide tabeli definitsioonid
     table.stripe.order-column#pickle
       thead
         tr
@@ -217,10 +219,10 @@ block content
           //console.log( "Request Failed: " + err );
 
           });
-        } else {
+      } else {
           //sisseloginud = 'USER';
           //$("#sisseloginudkasutaja").text(sisseloginud);
-        };
+      };
 
       var kypsis = document.cookie;
       //console.log(kypsis);
@@ -247,19 +249,21 @@ block content
         deferRender: true,
         stateSave: true,
         data: tulemus,
-        // Add red color to customer
+        // Add color red to customer
         rowCallback: function(row, data, index) {
           if( data.YLE_MT == 1 || data.VABA_LIMIIT < 0 ) {
             $('td:eq(2)', row).addClass('bold-red');
           }
+          //add button for arved modal
           if(data.ARVEID > 0) {
             $('td:eq(11)', row).attr({'data-toggle': 'modal',
              'data-target': '#arved', 'role':'button',
+             'href': '#arved',
              'data-url': data.ID, 'data-nimi': data.Kliendi_nimi,
               'data-email': data.E_MAIL})
              .addClass('text-primary');
           }
-          },
+        },
           // Calculate Totals over all columns/pages
         headerCallback: function( thead, data, start, end, display ) {
           var api = this.api(), data;
@@ -463,6 +467,16 @@ block content
         }
       });
 
+      //
+      // Listener for arveTabel initialized
+      //
+      $('#arveTabel').on('click', function() {
+        var arveTabel = $('#arveTabel').DataTable().buttons.exportData({
+        stripHtml: false
+        });
+        console.log(convertTableToHtml(arveTabel));
+      });
+
       // Listener for SP Leping button
       // Avab SP lepingu uues aknas
       //
@@ -513,7 +527,7 @@ block content
 
 
       //
-      //listener for arved modal
+      //listener for showing arved modal
       //
       $('#arved').on('show.bs.modal', function (event) {
             //console.log('MODAL');
@@ -527,9 +541,16 @@ block content
             var yleTahtaja = 0;
             var mail = button.data('email');
             var aeg = new Date();
-            var kuu = ((aeg.getMonth().length+1)===1)? (aeg.getMonth() + 1) : "0" + (aeg.getMonth() + 1);
-            $("#kliendinimi").text(kliendinimi + " ( "+ mail
-            +" ) tasumata arved seisuga " +
+            var kuu = ((aeg.getMonth().length+1)===1)? (aeg.getMonth() + 1)
+            : "0" + (aeg.getMonth() + 1);
+
+            var mailBody = $('#arveTabel').DataTable().buttons.exportData({
+            "stripHtml": false
+            })
+
+            //Invoices modal header
+            $("#kliendinimi").html("<b>"+kliendinimi + "</b> ( "+ mail
+            +" )<a href='mailto:ypuskar@gmail.com?&body="+mailBody+"'>m</a> tasumata arved seisuga " +
             aeg.getDate()+"/"+ kuu +
             "/"+ aeg.getFullYear());
 
@@ -582,15 +603,16 @@ block content
               },
               dom: 'Blrtip',
               buttons: [
-                'copy', 'csv', 'excel',
+                'copyHtml5', 'csvHtml5', 'excelHtml5',
                 {
-                extend: 'pdf',
+                extend: 'pdfHtml5',
                 title:  kliendinimi + " tasumata arved seisuga " +
                             aeg.getDate()+"/"+ kuu +
                             "/"+ aeg.getFullYear()
                 },
                 {
                 extend: 'print',
+                //autoPrint: false,
                 title:      kliendinimi + " tasumata arved seisuga " +
                             aeg.getDate()+"/"+ kuu +
                             "/"+ aeg.getFullYear(),
@@ -600,6 +622,17 @@ block content
                 $(win.document.body).find('h1')
                 .attr('id','printSection').wrap('<div class="header-print" id=printSection></div>');
                 }
+                },
+                {
+                  text: 'Email',
+                  /*action: function ( e, dt, node, config ) {
+                    alert('saadan e-kirja');
+                  }*/
+                  attr: {
+                    'data-toggle': 'modal',
+                    href: '#email'
+                  },
+                  className: 'btn'
                 }
               ],
               createdRow: function(row, data, dataIndex) {
@@ -868,4 +901,23 @@ block content
     //          for (var i = 1; i < ((data.length < 5) ? data.length : 5 ); i++) {
     //            '<tr class="alamtabel"><td>' +data[i].KOMMENTAAR+ '</td>'/*<td>" +data[i].CREATED+ "</td><td>"+data[i].CREATEDBY+"</td>*/+'</tr>'
     //          } +
+    }
+    function convertTableToHtml(myTable) {
+      console.log(myTable);
+      var html = "<table>";
+      //add header row
+      html += "<tr>";
+      for(var i=0;i<myTable.header.length;i++)
+          html+="<td>"+myTable.header[i]+"</td>";
+      html += "</tr>";
+      //add rows
+      for (var i = 0; i < myTable.body.length; i++)
+      {
+          html += "<tr>";
+          for (var j = 0; j< myTable.body[0].length; j++)
+              html += "<td>" + myTable.body[i][j] + "</td>";
+          html += "</tr>";
+      }
+      html += "</table>";
+      return html;
     }
