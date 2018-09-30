@@ -97,9 +97,9 @@ app.get('/login',
   passport.authenticate('azuread-openidconnect', { failureRedirect: '/' }),
     (req, res) => {
           accessToken=req.user.accessToken;
-          res.redirect('/clients/customers/customers');
+          return res.redirect('/clients/customers/customers');
       //res.redirect('/clients/customers/customers');
-    });
+  });
 // Authentication callback.
 // After we have an access token, get user data and load the sendMail page.0
 var aToken='';
@@ -118,7 +118,7 @@ app.get('/token',
           req.user.profile.displayName = user.body.displayName;
           req.user.profile.emails = [{ address: user.body.mail || user.body.userPrincipalName }];
           //res.redirect('/');
-          res.redirect('/clients/customers/customers');
+          return res.redirect('/clients/customers/customers');
         } else {
           renderError(err, res);
         }
@@ -130,7 +130,7 @@ app.get('/sp',
   /*  if(!req.isAuthenticated()) {
                 res.redirect('/token');
           }*/
-          graphHelper.getGToken((err, response) => {
+          graphHelper.getGToken((err, response) => { //Get Graph access token
             if (!err) {
 
               aToken =  JSON.parse(response.text).access_token;
@@ -142,12 +142,12 @@ app.get('/sp',
               var firma = [];
               //var firma = [];
               //console.log(nextlink);
-
+              //get Sharepoint Firma ID and kliendileping ID from SP
               async.parallel({
                 one: function (callback) {
                   var vast = rSPdata(aToken, 'Leping', nextlink, i, req,
                     res, vastus, (vastus) => {
-                      leping = vastus;
+                      leping = vastus; //kliendileping fields
                       //console.log('FN sees');
                       //console.log(leping[0]);
                       callback(null, vastus);
@@ -199,10 +199,11 @@ app.get('/sp',
                         //console.log(leping.length+' '+leping[e].id+' '+yksfirma[0].Registrikood);
                         queryString = queryString + "UPDATE MR_KLIENDID "+
                         "SET SP_ID = "+leping[e]["id"]+
+                        ", SP_FIRMA_ID ="+leping[e]["Firma_x0020_Nimi_x003a_RegistrikLookupId"]+
                         " WHERE reg_nr = '" + yksfirma[0].Registrikood+"'; \n";
                           /*updateCustomer( req, leping[e]["id"],
                           yksfirma[0].Registrikood);*/
-                          if (k == 100) {
+                          if (k == 100) { //make patches to lower DB requests
                             t++;
                             console.log('UPDATE NR '+ t);
                             //updateCustomer( req, queryString);
@@ -269,7 +270,7 @@ var rSPdata = function recursiveSPdata (aToken, valik, nextlink, i,
       }
   }); //end callback
 };
-//recurssively receives Kliendileping records from sharepoint using MS Graph REST
+//recurssively receives Firma records from sharepoint using MS Graph REST
 var rSPdata1 = function (aToken, valik, nextlink, i,
   reqOrig, resOrig, vastus, callback1) {
 
@@ -348,11 +349,14 @@ app.get('/logout', (req, res) => {
   });
 });
 
+//Create SP Firma, KLiendileping or update Firma, Kliendileping
+//regnr - Firma.registreerimisnumber, title - firma.nimi,
+//count - checks times URL is called > 3 automatic cancel
 app.get('/test/:regnr/:title/:count', (req, res) => {
 
       if(req.params.regnr === '' || req.params.title === '') {
-        res.redirect('/');
-        return;
+        return res.redirect('/');
+
       } else {
         var Registrikood = '';
         Registrikood = req.params.regnr;
@@ -362,18 +366,15 @@ app.get('/test/:regnr/:title/:count', (req, res) => {
         createSPContract(req, Registrikood/*'12345'*/, Firmanimi/*'TESTFIRMA'*/,
         accessToken, (tulemus) => {
           if(tulemus.resStatus === 'OK') {
-            res.status(200).json(JSON.stringify(tulemus));
-            return;
+            return res.status(200).json(JSON.stringify(tulemus));
+
           } else if (count < 4 ) {
             count+=1;
 
-            res.redirect('/test/'+Registrikood+'/'+Firmanimi+'/'+count);
+            return res.redirect('/test/'+Registrikood+'/'+Firmanimi+'/'+count);
           } else {
-            res.status(200).send('ERROR '+tulemus.resStatus);
-            return;
+            return res.status(200).send('ERROR '+tulemus.resStatus);
           }
-
-
         });
       }
 
