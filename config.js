@@ -1,7 +1,14 @@
 var tenantName    = 'febas';
-var clientID      = 'cd40b934-7653-46d6-811e-1e33ef2b54b6';
+var clientID      = process.env.clientId;
 var serverPort    = 3000;
 var prodserver    = 'localhost:3000'; //'febascustomer.azurewebsites.net';
+var redirectUrl   = process.env.redirectUrl;
+var clientSecret  = process.env.clientSecret;
+var userName      = process.env.user;
+var password      = process.env.password;
+var server        = process.env.server;
+var database      = process.env.database;
+
 
 module.exports.serverPort = serverPort;
 
@@ -10,10 +17,10 @@ module.exports.credentials = {
   clientID: clientID
 };
 module.exports.db = {
-  userName: 'ylo@y949pjzte3',
-  password: 'P@rool1234',
-  server: 'y949pjzte3.database.windows.net',
-  database: 'kredn'
+  userName: userName,
+  password: password,
+  server: server,
+  database: database
 };
 module.exports.creds = {
   // Required
@@ -31,12 +38,12 @@ module.exports.creds = {
   // Required
   responseMode: 'query',
   // Required, the reply URL registered in AAD for your app
-  redirectUrl: 'http://localhost:3000/token',
+  redirectUrl: redirectUrl,
   // Required if we use http for redirectUrl
   allowHttpForRedirectUrl: true,
   // Required if `responseType` is 'code', 'id_token code' or 'code id_token'.
   // If app key contains '\', replace it with '\\'.
-  clientSecret: 'uMVWQsBFKNAXCp0hz6iyGMVD+QfFGPHSMEIVXr2ouNw=',
+  clientSecret: clientSecret,
   // Required to set to false if you don't want to validate issuer
   validateIssuer: false,
   // Required to set to true if you are using B2C endpoint
