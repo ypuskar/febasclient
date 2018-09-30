@@ -346,11 +346,15 @@ block content
           }
           //add button for arved modal
           if(data.ARVEID > 0) {
+            var arveEmail = '';
+            data.F_EMAIL != null ? arveEmail = data.F_EMAIL : arveEmail = data.E_MAIL;
             $('td:eq(12)', row).attr({'data-toggle': 'modal',
-             'data-target': '#arved', 'role':'button',
+             'data-target': '#arved',
+             'role':'button',
              'href': '#arved',
-             'data-url': data.ID, 'data-nimi': data.Kliendi_nimi,
-              'data-email': data.E_MAIL})
+             'data-url': data.ID,
+             'data-nimi': data.Kliendi_nimi,
+             'data-email': arveEmail})
              .addClass('text-primary');
           }
         },
@@ -672,39 +676,39 @@ block content
             /*
             * Kasutusest maas arvete tabel
             */
-            /*$.getJSON(url, function( dataArved) { //read customer invoices from url
+              /*$.getJSON(url, function( dataArved) { //read customer invoices from url
 
-              if (dataArved.length > 0) {
-                $(".arve").remove();
-                var summa = 0;
-                var tsumma = 0;
-                var msumma=0;
-                for (var i = 0; i < dataArved.length; i++) {
-                  summa += dataArved[i].ARVE_SUMMA;
-                  tsumma += dataArved[i].TASUTUD;
-                  msumma += dataArved[i].TASUMATA;
-                  var row = ("<tr class='arve'><td>" +data[i].ARVE_NUMBER
-                  + "</td><td>"+dataArved[i].ARVE_KUUPÄEV
-                  + "</td><td>"+dataArved[i].MAKSE_KUUPÄEV
-                  + "</td><td>"+dataArved[i].ARVE_SUMMA
-                  + "</td><td>"+dataArved[i].TASUTUD
-                  + "</td><td>"+dataArved[i].TASUMATA
-                  + "</td><td>"+dataArved[i].FILIAAL
+                if (dataArved.length > 0) {
+                  $(".arve").remove();
+                  var summa = 0;
+                  var tsumma = 0;
+                  var msumma=0;
+                  for (var i = 0; i < dataArved.length; i++) {
+                    summa += dataArved[i].ARVE_SUMMA;
+                    tsumma += dataArved[i].TASUTUD;
+                    msumma += dataArved[i].TASUMATA;
+                    var row = ("<tr class='arve'><td>" +data[i].ARVE_NUMBER
+                    + "</td><td>"+dataArved[i].ARVE_KUUPÄEV
+                    + "</td><td>"+dataArved[i].MAKSE_KUUPÄEV
+                    + "</td><td>"+dataArved[i].ARVE_SUMMA
+                    + "</td><td>"+dataArved[i].TASUTUD
+                    + "</td><td>"+dataArved[i].TASUMATA
+                    + "</td><td>"+dataArved[i].FILIAAL
+                    +"</td></tr>")
+                    $("#arveTabel tbody").append(row);
+                  }
+                  var row = ("<tr class='arve'><td>"
+                  + "</td><td>"
+                  + "</td><td> Kokku"
+                  + "</td><td>"+summa
+                  + "</td><td>"+tsumma
+                  + "</td><td>"+msumma
+                  + "</td><td>"
                   +"</td></tr>")
-                  $("#arveTabel tbody").append(row);
-                }
-                var row = ("<tr class='arve'><td>"
-                + "</td><td>"
-                + "</td><td> Kokku"
-                + "</td><td>"+summa
-                + "</td><td>"+tsumma
-                + "</td><td>"+msumma
-                + "</td><td>"
-                +"</td></tr>")
-                $("#arveTabel tfoot").append(row);
+                  $("#arveTabel tfoot").append(row);
 
-              }
-            })*/
+                }
+                })*/
             //
             //Modaalaknasse kuvatav arvete tabel
             //
@@ -1065,9 +1069,9 @@ block content
           detailsTable[31] = '</tr></table></div>'+
           '<div class="col-lg-4">'+
           '<div class="panel-group">';
-
+          //finantsist table
            if(d.F_NIMI != null || d.F_TELEFON != null || d.F_EMAIL != null){
-            console.log(d.F_EMAIL);
+            //console.log(d.F_EMAIL);
             detailsTable[32] = '<div class="panel panel-default">'+
             '<div class="panel-heading">'+
             '<strong>Finantsisti andmed:</strong>'+
