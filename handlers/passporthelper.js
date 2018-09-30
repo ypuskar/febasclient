@@ -16,12 +16,22 @@ function getUserData(accessToken, callback) {
    });
 }
 exports.getUserData = getUserData;
-
+//get from SP kliendileping if valik = leping
+//Firma if valik = firma. nextlink == A => first iteration
+//nextlink == empty => last iteration
 function getSPData(accessToken, valik, nextlink,
   reqOrig, resOrig, callback) {
   //var url = '';
-  var url1 = "https://graph.microsoft.com/v1.0/sites/febas.sharepoint.com,2193468f-41a6-4a37-a762-14fb432fbb95,a41f917e-fafa-4ad3-9962-9fb386b1f26d/lists/0182799d-53c3-45da-8894-3e39ecaf65dc/items?expand=fields(select=Id,ValiFirma,Firma_x0020_Nimi_x003a_RegistrikLookupId)";
-  var url = "https://graph.microsoft.com/v1.0/sites/febas.sharepoint.com,2193468f-41a6-4a37-a762-14fb432fbb95,a41f917e-fafa-4ad3-9962-9fb386b1f26d/lists/0e29a37c-f5b0-485f-a91a-23094e9c1c0f/items?expand=fields";
+  var url1 = "https://graph.microsoft.com/v1.0/sites"+
+  "/febas.sharepoint.com,2193468f-41a6-4a37-a762-14fb432fbb95,"+
+  "a41f917e-fafa-4ad3-9962-9fb386b1f26d/lists/"+
+  "0182799d-53c3-45da-8894-3e39ecaf65dc/items"+
+  "?expand=fields(select=Id,ValiFirma,"+
+  "Firma_x0020_Nimi_x003a_RegistrikLookupId)";
+  var url = "https://graph.microsoft.com/v1.0/sites/"+
+  "febas.sharepoint.com,2193468f-41a6-4a37-a762-14fb432fbb95,"+
+  "a41f917e-fafa-4ad3-9962-9fb386b1f26d/lists/"+
+  "0e29a37c-f5b0-485f-a91a-23094e9c1c0f/items?expand=fields";
   if(valik === 'Leping' && nextlink === 'A'){
     url = url1;
   }
@@ -122,7 +132,9 @@ exports.getSPTest = getSPTest;
 
 exports.getSPCustomer = function (Registrikood, callback) {
 
-  var url = "https://febas.sharepoint.com/_api/Web/lists(guid'0e29a37c-f5b0-485f-a91a-23094e9c1c0f')/items/?$filter=Registrikood eq '"+Registrikood+"'";
+  var url = "https://febas.sharepoint.com/_api/Web/lists"+
+  "(guid'0e29a37c-f5b0-485f-a91a-23094e9c1c0f')/items/"+
+  "?$filter=Registrikood eq '"+Registrikood+"'";
 
   getSPToken((err, response) => {
         if (!err) {
@@ -211,9 +223,9 @@ exports.postSPContract = function (accessToken, fields, callback) {
    });
 } //end postSPContract
 //Generates POST request to Sendmail endpoint
-exports.sendMail = function sendMail(accessToken, message, callback) {
-console.log(message);
-  var url = "https://graph.microsoft.com/v1.0/users/ylo.puskar@feb.ee/sendMail";
+exports.sendMail = function sendMail(accessToken, message, user, callback) {
+//console.log(message);
+  var url = "https://graph.microsoft.com/v1.0/users/"+user+"/sendMail";
   const emailAsPayload = {
     Message: {
         Subject: 'Welcome to Microsoft Graph development with Node.js and the Microsoft Graph Connect sample',
@@ -231,7 +243,7 @@ console.log(message);
     },
     SaveToSentItems: true
 };
-  //console.log(url);
+  //console.log(message);
   request
     .post(url)
     .send(message)
