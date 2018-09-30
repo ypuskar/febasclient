@@ -32,7 +32,9 @@ exports.executesql = function(muutuja, sqlstatement, callback, mobjekt) {
     {
       if (err)
         {
-           console.log('viga baasi avamisel ' + err)
+           console.log('viga baasi avamisel ')
+           console.log(err);
+           return err;
         }
      else
         {
@@ -44,7 +46,9 @@ exports.executesql = function(muutuja, sqlstatement, callback, mobjekt) {
   {
     if (err)
       {
-         console.log('saabus errorMessage EVENT ' + err)
+         console.log('saabus errorMessage EVENT ');
+         console.log(err);
+         return err;
       }
    else
       {
@@ -56,7 +60,9 @@ connection.on('error', function(err)
 {
   if (err)
     {
-       console.log('saabus error EVENT ' + err)
+       console.log('saabus error EVENT ');
+       console.log(err);
+       return err;
     }
  else
     {
@@ -73,7 +79,7 @@ connection.on('error', function(err)
                   {
                     if (err) {
                       console.log("REQUEST ERROR " + sqlstatement);
-                      callback(err);
+                      return callback(err);
                     } else {
 
                       console.log(rowCount + ' row(s) returned');
@@ -107,7 +113,7 @@ connection.on('error', function(err)
           console.log("doneProc");
       //    console.log(rows + ' row(s) returned');
           console.log('CALLBACK JSON ' + jsonArray.length);
-          callback(jsonArray, mobjekt);
+          return callback(jsonArray, mobjekt);
           jsonArray = [];
       });
       request.on('requestCompleted', function () {
