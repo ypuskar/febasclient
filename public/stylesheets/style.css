@@ -28,9 +28,9 @@ td.data {font-size:9px}
 
 td.alamtabel {font-weight: bold}
 
-td.stop-dist {
-  background: url('/images/Sign-Stop-icon.png') no-repeat center center;
-  cursor: pointer;
+.stop-dist {
+  background: url('/images/circle-icon-red.svg') no-repeat center center;
+  padding: 8px;
   }
 /*@media screen {
        #printSection {
@@ -38,6 +38,9 @@ td.stop-dist {
        }
   }
 */
+td.align-right {
+  text-align: right;
+  }
 td.deleterow {
   background: url('/images/delete-24.png') no-repeat center center;
   cursor: pointer;
@@ -78,4 +81,11 @@ td.deleterow {
 }
 body.waiting * {
   cursor: progress;
+}
+.hidden {
+  display: none;
+}
+svg {
+  position: relative;
+  z-index: -1;
 }
