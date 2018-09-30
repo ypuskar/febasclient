@@ -28,14 +28,25 @@ exports.customer_json = function (req, res) {
   res.status(200).json(result);
   });
 };
+//reads timestamp from db
+exports.timestamp = function (req, res) {
+  DataStore.executesql(req, "SELECT TOP 1 k.[DB_UPDATETIME]"+
+  " FROM [MR_DBTIMESTAMP] k WHERE DB_KEY = 1",
+  function(result){
 
+ //console.log("CALLBACK TÖÖTAB");
+//  res.send('LÕPP KÄES');
+  return res.status(200).json(result);
+  });
+};
 // SQL loads all Feb customers and joins maksetingimus
 exports.customer_feb = function(req, res) {
   // check if user is authenticated
-if (!req.isAuthenticated()) {
-  console.log(req.user);
+if (req.user != undefined) {
+  console.log(req.user.profile.displayName + ' IS Authenticated');
 } else {
-  console.log('NOT Authenticated');
+  console.log('NOT Authenticated in customer_feb');
+  return res.redirect('/login');
 }
   DataStore.executesql(req, 'SELECT  DISTINCT k.[KLENDI_NIMI] as Kliendi_nimi,'+
                         ' k.[E_MAIL],'+
@@ -63,14 +74,18 @@ if (!req.isAuthenticated()) {
                         ' k.YLE_LIMIIDI,'+
                         ' k.ARVEID,'+
                         ' k.KOONDARVE,'+
-                        ' k.SP_ID'+
+                        ' k.SP_ID,'+
+                        ' k.SP_FIRMA_ID,'+
+                        ' k.F_NIMI,'+
+                        ' k.F_TELELFON AS F_TELEFON,'+
+                        ' k.F_EMAIL'+
 //                        ' COUNT(a.ID) over (partition by k.id) AS [Maksmata_arveid],'+
 //                        ' SUM(a.tasumata) over (partition by k.id) as [Tasumata_SUM],'+
 //                        ' p.[MT_NIMETUS] as Maksetingimus'+
                         ' FROM [MR_KLIENDID] k',
 //                        ' JOIN [MR_MAKSETINGIMUS] p ON k.MAKSETINGIMUS = p.MT'+
 //                        ' LEFT OUTER JOIN [MR_ARVED] a ON k.ID = a.KLIENDI_ID',
-                        function(result){
+          function(result){
 
 //  res.send('LÕPP KÄES');
   res.render('customers', {title: 'FEB MR', result: result, env: process.env.NODE_ENV, user: req.user});
@@ -80,8 +95,8 @@ if (!req.isAuthenticated()) {
 //insert new comment for customer
 exports.customer_feb_tekst = function (req, res) {
 //console.log(req.b)
-DataStore.executesql(req, "UPDATE MR_KLIENDID SET KOMMENTAAR = '"+req.body.KOMMENTAAR+"'"+
-                    " WHERE ID = "+req.params.tekstId+" "+
+DataStore.executesql(req, //"UPDATE MR_KLIENDID SET KOMMENTAAR = '"+req.body.KOMMENTAAR+"'"+
+                    //" WHERE ID = "+req.params.tekstId+" "+
                     " INSERT INTO KOMMENTAARID (KLIENDI_ID, KOMMENTAAR, CREATED, CREATEDBY) "+
                     " VALUES ("+req.params.tekstId+", '"+req.body.KOMMENTAAR+"', GETDATE(), '"+req.body.CREATEDBY+"');",
                       function(result){
@@ -89,8 +104,8 @@ DataStore.executesql(req, "UPDATE MR_KLIENDID SET KOMMENTAAR = '"+req.body.KOMME
 //console.log(req.body);
 
 //console.log("CALLBACK TÖÖTAB");
-//  res.end('OK');
-res.redirect('/clients/customers/customers');
+  res.end('OK');
+//res.redirect('/clients/customers/customers');
 });
 };
 // delete customer comment by comment id
@@ -109,9 +124,8 @@ exports.delete_comment = function (req, res) {
       //console.log(req.body.CREATEDBY);
 
       //console.log("CALLBACK TÖÖTAB");
-      //  res.send('LÕPP KÄES');
-      res.redirect('/clients/customers/customers');
-      return;
+      return  res.end('END');
+      //return res.redirect('/clients/customers/customers');
     });
     //res.end('OK');
     //res.redirect('/clients/customers/customers');
@@ -219,8 +233,10 @@ exports.createSPContract = function(req, Registrikood, FirmaNimi, accessToken, r
                 console.log(response.text);
                 if (JSON.parse(response.text).value.length > 0 ) { //Leping SP olemas
                   var LepingId = JSON.parse(response.text).value[0].Id;
+                  var FirmaId = JSON.parse(response.text).value[0].Nimi_x0020_otsingId;
                   var queryString = "UPDATE MR_KLIENDID "+
                                     "SET SP_ID = "+LepingId+
+                                    ", SP_FIRMA_ID = "+FirmaId+
                                     " WHERE reg_nr = '" + Registrikood+"'; \n";
                   DataStore.executesql(req, queryString,
                     function(result){
@@ -290,7 +306,7 @@ exports.createSPContract = function(req, Registrikood, FirmaNimi, accessToken, r
           }
       } else { //vastust ei leitud
         if(err == 'Error: Not Found') {
-          res.status(200).json('Error: Not Found');
+          return res.status(200).json('Error: Not Found');
         } else {
           renderError(err, res);
         }
@@ -305,16 +321,17 @@ exports.createSPContract = function(req, Registrikood, FirmaNimi, accessToken, r
 
         if (!err) {
           var accessToken = JSON.parse(response.text).access_token;
-          var message = req.body;
-                    //console.log(req.body);
-          findObj.sendMail(accessToken, message,
+          var message = req.body.message;
+          var user = req.body.user;
+                    //console.log(req.body.message);
+          findObj.sendMail(accessToken, message, user,
                               (err, result) => {
                                 if(!err) {
                                   console.log('MAIL saadetud!');
                                 res.status(200).json(result);
                               } else {
                                   console.log('MAILI EI SAADETUD! ' +err);
-                                renderError(err, res);
+                                  res.status(400).json(err);
                               }
 
                             });
