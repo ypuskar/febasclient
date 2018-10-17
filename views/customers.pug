@@ -509,7 +509,7 @@ block content
           }
           } ); //listener for green button
       //
-      //listener for modal open
+      //listener for kommentaar modal open
       //
       $('#muudatekst').on('show.bs.modal', function (event) {
           //console.log('MODAL');
@@ -658,8 +658,9 @@ block content
             var yleTahtaja = 0;
             var mail = button.data('email');
             var aeg = new Date();
-            var kuu = ((aeg.getMonth().length+1)===1)? (aeg.getMonth() + 1)
+            var kuu = ((aeg.getMonth()+1)>=10)? (aeg.getMonth() + 1) //till oct add 0 to beginning
             : "0" + (aeg.getMonth() + 1);
+            //console.log(aeg.getMonth());
             //mail address to form field
             $('#formcontrol1').val(mail);
             var mailBody = $('#arveTabel').DataTable().buttons.exportData({
