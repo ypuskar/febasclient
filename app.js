@@ -363,19 +363,46 @@ app.get('/test/:regnr/:title/:count', (req, res) => {
         var Firmanimi = '';
         Firmanimi = req.params.title;
         var count=parseInt(req.params.count);
-        createSPContract(req, Registrikood/*'12345'*/, Firmanimi/*'TESTFIRMA'*/,
-        accessToken, (tulemus) => {
-          if(tulemus.resStatus === 'OK') {
-            return res.status(200).json(JSON.stringify(tulemus));
+        if(accessToken === '') {
+          //console.log('ACCESS TOKEN empty');
+          graphHelper.getGToken((err, response) => { //Get Graph access token
+            if (!err) {
 
-          } else if (count < 4 ) {
-            count+=1;
+              aToken =  JSON.parse(response.text).access_token;
+              //console.log('ACCESS TOKEN '+aToken);
+              createSPContract(req, Registrikood/*'12345'*/, Firmanimi/*'TESTFIRMA'*/,
+              aToken, (tulemus) => {
+                if(tulemus.resStatus === 'OK') {
+                  return res.status(200).json(JSON.stringify(tulemus));
 
-            return res.redirect('/test/'+Registrikood+'/'+Firmanimi+'/'+count);
-          } else {
-            return res.status(200).send('ERROR '+tulemus.resStatus);
-          }
+                } else if (count < 4 ) {
+                  count+=1;
+
+                  return res.redirect('/test/'+Registrikood+'/'+Firmanimi+'/'+count);
+                } else {
+                  return res.status(200).send('ERROR '+tulemus.resStatus);
+                }
+              });
+            }
+
+
         });
+        } else {
+
+          createSPContract(req, Registrikood/*'12345'*/, Firmanimi/*'TESTFIRMA'*/,
+          accessToken, (tulemus) => {
+            if(tulemus.resStatus === 'OK') {
+              return res.status(200).json(JSON.stringify(tulemus));
+
+            } else if (count < 4 ) {
+              count+=1;
+
+              return res.redirect('/test/'+Registrikood+'/'+Firmanimi+'/'+count);
+            } else {
+              return res.status(200).send('ERROR '+tulemus.resStatus);
+            }
+          });
+        }
       }
 
 /*    var fields = {};
