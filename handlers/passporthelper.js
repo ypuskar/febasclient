@@ -140,6 +140,10 @@ exports.getSPCustomer = function (Registrikood, callback) {
         if (!err) {
           accessToken = JSON.parse(response.text).access_token;
           //console.log(accessToken);
+          if(accessToken === '') {
+            //console.log('SP TOKENIT EI LEITUD');
+            return callback(Boom.forbidden(err.details[0].message), res);
+          } else {
           request
               .get(url)
               //.get("http://febas.sharepoint.com/_api/Web/lists/GetByTitle('Firma')/Items(100)")
@@ -152,6 +156,7 @@ exports.getSPCustomer = function (Registrikood, callback) {
              //console.log(res);
              callback(err, res);
            });
+         }
 
       } else {
         return callback(Boom.forbidden(err.details[0].message), res);
@@ -219,6 +224,7 @@ exports.postSPContract = function (accessToken, fields, callback) {
    .set('cache-control', 'no-cache')
    .send({fields: fields})
    .end((err, res) => {
+          //console.log(res);
      callback(err, res);
    });
 } //end postSPContract
