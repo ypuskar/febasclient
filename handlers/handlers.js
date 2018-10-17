@@ -222,15 +222,15 @@ exports.createSPContract = function(req, Registrikood, FirmaNimi, accessToken, r
       //console.log(JSON.parse(response.text).value.length);
       if (!err) { //Leiti vastus
         if (JSON.parse(response.text).value.length > 0 ) { //Firma SP olemas
-          var FirmaId = JSON.parse(response.text).value[0].Id;
+          var FirmaID = JSON.parse(response.text).value[0].Id;
 
-          console.log('Firma Id on '+FirmaId);
-          console.log(JSON.parse(response.text).value[0].Id);
+          console.log('Firma Id on '+FirmaID);
+          //console.log(JSON.parse(response.text).value[0].Id);
           //Check Contract exists in SP
-          findObj.getSPContract(FirmaId, (err, response) => {
+          findObj.getSPContract(FirmaID, (err, response) => {
               if (!err) { //leiti vastus
-                console.log('GetSPCustomer vastus');
-                console.log(response.text);
+                //console.log('GetSPCustomer vastus');
+                //console.log(response.text);
                 if (JSON.parse(response.text).value.length > 0 ) { //Leping SP olemas
                   var LepingId = JSON.parse(response.text).value[0].Id;
                   var FirmaId = JSON.parse(response.text).value[0].Nimi_x0020_otsingId;
@@ -258,10 +258,10 @@ exports.createSPContract = function(req, Registrikood, FirmaNimi, accessToken, r
                   var fields = {};
                   //fields.Title='LEPNR';
                   //fields.Registrikood='TESTKOOD';
-                  fields.Nimi_x0020_otsingLookupId=FirmaId;
+                  fields.Nimi_x0020_otsingLookupId=FirmaID;
                   fields.ValiFirma=FirmaNimi;
                   //fields.Firma_x0020_Nimi_x003a_RegistrikLookupId=FirmaId;
-                  console.log(fields);
+                  //console.log(fields);
                   findObj.postSPContract(accessToken, fields, (err, response) => {
                       if (!err) {
                         var tulemus = {};
