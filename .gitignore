@@ -63,6 +63,6 @@ typings/
 
 # conf file
 ./config.js
-
+./febascust.bat
 #zip
 ./febascust.zip
