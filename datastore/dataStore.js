@@ -25,14 +25,16 @@ var config =
 
 var jsonArray = [];
 
-exports.executesql = function(muutuja, sqlstatement, callback) {
+exports.executesql = function(muutuja, sqlstatement, callback, mobjekt) {
     var connection = new Connection(config);
 
     connection.on('connect', function(err)
     {
       if (err)
         {
-           console.log('viga baasi avamisel ' + err)
+           console.log('viga baasi avamisel ')
+           console.log(err);
+           return err;
         }
      else
         {
@@ -44,7 +46,9 @@ exports.executesql = function(muutuja, sqlstatement, callback) {
   {
     if (err)
       {
-         console.log('saabus errorMessage EVENT ' + err)
+         console.log('saabus errorMessage EVENT ');
+         console.log(err);
+         return err;
       }
    else
       {
@@ -56,7 +60,9 @@ connection.on('error', function(err)
 {
   if (err)
     {
-       console.log('saabus error EVENT ' + err)
+       console.log('saabus error EVENT ');
+       console.log(err);
+       return err;
     }
  else
     {
@@ -72,8 +78,8 @@ connection.on('error', function(err)
                function(err, rowCount, rows)
                   {
                     if (err) {
-                      console.log("CONNECTION ERROR" + sqlstatement);
-                      callback(err);
+                      console.log("REQUEST ERROR " + sqlstatement);
+                      return callback(err);
                     } else {
 
                       console.log(rowCount + ' row(s) returned');
@@ -104,11 +110,16 @@ connection.on('error', function(err)
     //      callback(jsonArray);
          });
       request.on('doneProc', function (rowCount, more, returnStatus, rows){
-      //    console.log("LOOOP");
+          console.log("doneProc");
       //    console.log(rows + ' row(s) returned');
           console.log('CALLBACK JSON ' + jsonArray.length);
-          callback(jsonArray);
+          return callback(jsonArray, mobjekt);
           jsonArray = [];
+      });
+      request.on('requestCompleted', function () {
+                  jsonArray = [];
+                  console.log('Closing connection');
+                  connection.close();
       });
       connection.execSql(request);
 

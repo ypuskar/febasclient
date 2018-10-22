@@ -1,7 +1,14 @@
 var tenantName    = 'febas';
-var clientID      = 'd2bcef36-c787-4a90-ab2b-0c59a78b9ab8';
+var clientID      = process.env.clientId;
 var serverPort    = 3000;
 var prodserver    = 'localhost:3000'; //'febascustomer.azurewebsites.net';
+var redirectUrl   = process.env.redirectUrl;
+var clientSecret  = process.env.clientSecret;
+var userName      = process.env.user;
+var password      = process.env.password;
+var server        = process.env.server;
+var database      = process.env.database;
+
 
 module.exports.serverPort = serverPort;
 
@@ -10,14 +17,14 @@ module.exports.credentials = {
   clientID: clientID
 };
 module.exports.db = {
-  userName: 'ylo@y949pjzte3',
-  password: 'P@rool1234',
-  server: 'y949pjzte3.database.windows.net',
-  database: 'kredn'
+  userName: userName,
+  password: password,
+  server: server,
+  database: database
 };
 module.exports.creds = {
   // Required
-  identityMetadata: `https://login.microsoftonline.com/${tenantName}.onmicrosoft.com/.well-known/openid-configuration`,
+  identityMetadata: `https://login.microsoftonline.com/organizations/v2.0/.well-known/openid-configuration`,
   // or equivalently: 'https://login.microsoftonline.com/<tenant_guid>/.well-known/openid-configuration'
   //
   // or you can use the common endpoint
@@ -27,25 +34,25 @@ module.exports.creds = {
   // Required, the client ID of your app in AAD
   clientID: clientID,
   // Required, must be 'code', 'code id_token', 'id_token code' or 'id_token'
-  responseType: 'code id_token',
+  responseType: 'code',
   // Required
-  responseMode: 'form_post',
+  responseMode: 'query',
   // Required, the reply URL registered in AAD for your app
-  redirectUrl: 'https://febascustomer.azurewebsites.net/.auth/login/aad/callback',
+  redirectUrl: redirectUrl,
   // Required if we use http for redirectUrl
   allowHttpForRedirectUrl: true,
   // Required if `responseType` is 'code', 'id_token code' or 'code id_token'.
   // If app key contains '\', replace it with '\\'.
-  clientSecret: 'QZ922UoJnOrYQ1twAkzCEyYA6+gpefAOOkCh9GyF3YA=',
+  clientSecret: clientSecret,
   // Required to set to false if you don't want to validate issuer
-  validateIssuer: true,
+  validateIssuer: false,
   // Required to set to true if you are using B2C endpoint
   // This sample is for v1 endpoint only, so we set it to false
   isB2C: false,
   // Required if you want to provide the issuer(s) you want to validate instead of using the issuer from metadata
   issuer: null,
   // Required to set to true if the `verify` function has 'req' as the first parameter
-  passReqToCallback: true,
+  //passReqToCallback: true,
   // Recommended to set to true. By default we save state in express session, if this option is set to true, then
   // we encrypt state and save it in cookie instead. This option together with { session: false } allows your app
   // to be completely express session free.
@@ -58,7 +65,7 @@ module.exports.creds = {
     { 'key': 'abcdefghijklmnopqrstuvwxyzabcdef', 'iv': 'abcdefghijkl' }
   ],
   // Optional. The additional scope you want besides 'openid', for example: ['email', 'profile'].
-  scope: null,
+  scope: ['offline_access', 'User.Read', 'Mail.Send', 'Files.ReadWrite', 'email', 'profile', 'Sites.ReadWrite.All' ],
   // Optional, 'error', 'warn' or 'info'
   loggingLevel: 'info',
   // Optional. The lifetime of nonce in session or cookie, the default value is 3600 (seconds).

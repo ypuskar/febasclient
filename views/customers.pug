@@ -1,5 +1,6 @@
 extends layout
 block content
+  //modaalaknad
   #muudatekst.modal(tabindex="-1", role="dialog", aria-labelledby="myModalLabel", aria-hidden="true")
     .modal-dialog
       .modal-content
@@ -46,6 +47,16 @@ block content
             h4
               span#kliendinimi tasumata arved
             .modal-body
+              form.hidden#emailForm(method='POST' action='')
+                .form-group
+                  label(for="formcontrol1") E-maili aadress
+                  input.form-control#formcontrol1(type="email", placeholder="name@example.com")
+                .form-group
+                label(for="formcontrol2") Sisu
+                textarea.form-control#formcontrol2(rows="2")
+                button.btn.btn-primary#saadaMail(type='button' style='margin: 2px') Saada
+                button.btn.btn-primary#cancelMail(type='button') Cancel
+              p#testarea
               table.table.table-bordered#arveTabel
                 thead
                   tr
@@ -66,8 +77,23 @@ block content
         h3.whitetext .
       div.col-sm-4.text-right
         span Sisse loginud kasutaja:&nbsp
-        span.font-weigth-bold#sisseloginudkasutaja  Kasutaja
-        //- a.font-weight-bold(href='/logout')  Logi välja
+        if !user
+          span.font-weigth-bold#sisseloginudkasutaja  Kasutaja
+        else
+          span.font-weigth-bold#sisseloginudkasutaja #{user.profile.displayName}
+          span  (
+          span.font-weigth-bold#sisseloginudkasutajaemail #{user.profile._json.email}
+          span )
+        //-
+        a.font-weight-bold(href='/logout')  Logi välja
+        //include ../public/images/circle-icon-red.svg
+        //span.icon
+          //svg(heigth="24px" width="24px")
+            //use(xlink:href="../../images/circle-icon-red.svg#glassRoot")
+            //circle(cx="50 cy="50" r="40" stroke="red" stroke-width="3")
+        //refresh countdown timer;
+        span.hidden.stop-dist#cdTimer ()
+        //filtriväljade definitsioonid
         table.table.table-sm(style="width:100%")
           tbody
             tr
@@ -91,12 +117,17 @@ block content
                 input(name="tarnekeeld", id="tarnekeeld2", type="radio", value="2")
                 |  X:
                 input(name="tarnekeeld", id="tarnekeeld0", type="radio", value="0", checked)
-
+            tr
+              td.text-right.borderless Kokku = 0 Arved <> 0:&nbsp
+              td.text-left.borderless
+                input(name="kokkuArved", id="kokkuArved", type="checkbox")
+    // klientide tabeli definitsioonid
     table.stripe.order-column#pickle
       thead
         tr
           th
           th Tarne<br>keeld
+          th Koond<br>arve
           th Kliendi nimi
           th Aegumata
           th 30P
@@ -109,28 +140,60 @@ block content
           th Arveid
 
   script.
-    //table filter function
+    //table filtering functions
     $.fn.dataTable.ext.search.push(
       function( settings, data, dataIndex, rowData, counter ) {
-        if($("#limiit").is(':checked') && ($("#tahtaeg").is(':checked')) &&
-        (rowData.YLE_LIMIIDI) && (rowData.YLE_MT) || (rowData.ARVE_NUMBER != null))
+        //limiit valitud, tähtaeg pole valitud,
+        //yle limiidi ja yle mt true või arved olemas
+        if($("#limiit").is(':checked') &&
+        ($("#tahtaeg").is(':checked')) &&
+        (rowData.YLE_LIMIIDI) &&
+        (rowData.YLE_MT) ||
+        (rowData.ARVE_NUMBER != null))
           return true;
-        else if($("#limiit").is(':checked') && !($("#tahtaeg").is(':checked')) &&
+        //limiit valitud ja tähtaeg pole valitud
+        //yle limiidi true
+        else if($("#limiit").is(':checked') &&
+        !($("#tahtaeg").is(':checked')) &&
         (rowData.YLE_LIMIIDI) )
           return true;
-        else if(!($("#limiit").is(':checked'))&&!($("#tahtaeg").is(':checked'))&&($("#tarnekeeld0").is(':checked')))
+        //limiit, tähtaeg, tarnekeeld, kokku pole valitud
+        //kui lisada uusi filtreid tuleb seda tingimust muuta
+        else if(!($("#limiit").is(':checked'))&&
+        !($("#tahtaeg").is(':checked'))&&
+        ($("#tarnekeeld0").is(':checked'))&&
+        !($("#kokkuArved").is(':checked')))
           return true;
-        else if(($("#tahtaeg").is(':checked'))&&!($("#limiit").is(':checked'))&&
+        //limiit pole valitud, tahtaeg on valitud, ja yle mt
+        else if(($("#tahtaeg").is(':checked'))&&
+        !($("#limiit").is(':checked'))&&
         (rowData.YLE_MT))
           return true;
-        else if(!($("#limiit").is(':checked'))&&!($("#tahtaeg").is(':checked'))&&
-        ($("#tarnekeeldA").is(':checked'))&&(rowData.TARNEKEELD == 'A'))
+        //limiit ja tähtaeg pole valitud, tarnekeeldA valitud ja true
+        else if(!($("#limiit").is(':checked'))&&
+        !($("#tahtaeg").is(':checked'))&&
+        ($("#tarnekeeldA").is(':checked'))&&
+        (rowData.TARNEKEELD == 'A'))
           return true;
-        else if(!($("#limiit").is(':checked'))&&!($("#tahtaeg").is(':checked'))&&
-        ($("#tarnekeeldJ").is(':checked'))&&(rowData.TARNEKEELD == 'J'))
+        //limiit ja tähtaeg pole valitud, tarnekeeldJ valitud ja true
+        else if(!($("#limiit").is(':checked'))&&
+        !($("#tahtaeg").is(':checked'))&&
+        ($("#tarnekeeldJ").is(':checked'))&&
+        (rowData.TARNEKEELD == 'J'))
           return true;
-        else if(!($("#limiit").is(':checked'))&&!($("#tahtaeg").is(':checked'))&&
-        ($("#tarnekeeld2").is(':checked'))&&(rowData.TARNEKEELD == '2'))
+        //limiit ja tarnekeeld pole valitud ja tarnekeeld2 valitud ja true
+        else if(!($("#limiit").is(':checked'))&&
+        !($("#tahtaeg").is(':checked'))&&
+        ($("#tarnekeeld2").is(':checked'))&&
+        (rowData.TARNEKEELD == '2'))
+          return true;
+        //limiit, tarnekeeld pole valitud, tarnekeeld0 ja kokku valitud
+        else if(!($("#limiit").is(':checked'))&&
+        !($("#tahtaeg").is(':checked'))&&
+        ($("#tarnekeeld0").is(':checked'))&&
+        ($("#kokkuArved").is(':checked'))&&
+        (rowData.KOKKU === 0)&&
+        (rowData.ARVEID > 0))
           return true;
         else
           return false;
@@ -152,7 +215,46 @@ block content
           return moment( d, format, locale, true ).unix();
       };
     };
+    //change cursor during ajax call
+    $(document).ajaxStart(function() {
+      $(document.body).css({'cursor' : 'wait'});
+      }).ajaxStop(function() {
+      $(document.body).css({'cursor' : 'default'});
+      });
+    var mainTimeStamp = ''; //maintimestamp global variable
+
+    //user idle time checker
+    var idleTime = 0;
+
     $(document).ready(function() {
+      //Increment the idle time counter every 5 sec.
+      idleInterval = setInterval(timerIncrement, 5000); // 5 sec
+          //Zero the idle timer on mouse movement.
+      $('body').mousemove(function (e) {
+      //alert("mouse moved" + idleTime);
+      idleTime = 0;
+      });
+
+      $('body').keypress(function (e) {
+      //alert("keypressed"  + idleTime);
+        idleTime = 0;
+      });
+
+      $('body').click(function() {
+      //alert("mouse moved" + idleTime);
+       idleTime = 0;
+      });
+      function timerIncrement() {
+        idleTime = idleTime + 1;
+        }
+        //Get refresh timestamp from database
+        $.getJSON('/clients/customers/timestamp', function( data) {
+
+          if(data.length > 0) {
+            mainTimeStamp = data[0].DB_UPDATETIME;
+            //console.log(mainTimeStamp);
+          }
+        });
       $.fn.dataTable.moment( 'DD/MM/YYYY' );
       var testdata = [
         {
@@ -170,9 +272,9 @@ block content
       var userUrl = '';
 
       if( environment == 'production'){
-        userUrl = 'https://mrvolad.feb.ee/.auth/me';
+        //userUrl = 'https://mrvolad.feb.ee/.auth/me';
       } else if( environment == 'staging' ) {
-        userUrl = 'https://mrvolad-staging.azurewebsites.net/.auth/me';
+        //userUrl = 'https://mrvolad-staging.azurewebsites.net/.auth/me';
       };
       if (userUrl != '') {
 
@@ -204,23 +306,24 @@ block content
           var err = textStatus + ", " + error;
           sisseloginud = 'USER';
           $("#sisseloginudkasutaja").text(sisseloginud);
-          console.log( "Request Failed: " + err );
+          //console.log( "Request Failed: " + err );
 
           });
-        } else {
-          sisseloginud = 'USER';
-          $("#sisseloginudkasutaja").text(sisseloginud);
-        };
+      } else {
+          //sisseloginud = 'USER';
+          //$("#sisseloginudkasutaja").text(sisseloginud);
+      };
 
       var kypsis = document.cookie;
       //console.log(kypsis);
 
-      console.log(tulemus.length);
+      //console.log(tulemus.length);
       //
       //Põhiaknasse kuvatav klientide tabel
       //
       var table = $('#pickle').DataTable({
         dom: 'Blfrtip',
+        pageLength: 100,
         buttons: [
           'copy', 'csv', 'excel', 'pdf',
           {
@@ -234,15 +337,28 @@ block content
         bDestroy: true,
         bProcessing: true,
         deferRender: true,
+        stateSave: true,
         data: tulemus,
+        // Add color red to customer
         rowCallback: function(row, data, index) {
           if( data.YLE_MT == 1 || data.VABA_LIMIIT < 0 ) {
-            $('td:eq(2)', row).addClass('bold-red');
+            $('td:eq(3)', row).addClass('bold-red');
           }
+          //add button for arved modal
           if(data.ARVEID > 0) {
-            $('td:eq(11)', row).attr({'data-toggle': 'modal', 'data-target': '#arved', 'role':'button', 'data-url': data.ID, 'data-nimi': data.Kliendi_nimi }).addClass('text-primary');
+            var arveEmail = '';
+            data.F_EMAIL != null ? arveEmail = data.F_EMAIL : arveEmail = data.E_MAIL;
+            $('td:eq(12)', row).attr({'data-toggle': 'modal',
+             'data-target': '#arved',
+             'role':'button',
+             'href': '#arved',
+             'data-url': data.ID,
+             'data-nimi': data.Kliendi_nimi,
+             'data-email': arveEmail})
+             .addClass('text-primary');
           }
-          },
+        },
+          // Calculate Totals over all columns/pages
         headerCallback: function( thead, data, start, end, display ) {
           var api = this.api(), data;
 
@@ -253,9 +369,15 @@ block content
                 typeof i === 'number' ?
                     i : 0;
           };
+          //
 
-          // Total over all pages
 
+          var total10 = api
+            .column( 10, {'filter': 'applied'} )
+            .data()
+            .reduce( function (a, b) {
+                return intVal(a) + intVal(b);
+            }, 0 );
           var total9 = api
             .column( 9, {'filter': 'applied'} )
             .data()
@@ -292,28 +414,22 @@ block content
             .reduce( function (a, b) {
                 return intVal(a) + intVal(b);
             }, 0 );
-          var total3 = api
-            .column( 3, {'filter': 'applied'} )
-            .data()
-            .reduce( function (a, b) {
-                return intVal(a) + intVal(b);
-            }, 0 );
 
+            total10 = Math.round(total10).toLocaleString('et-EE',{style: 'decimal' });
             total9 = Math.round(total9).toLocaleString('et-EE',{style: 'decimal' });
             total8 = Math.round(total8).toLocaleString('et-EE',{style: 'decimal' });
             total7 = Math.round(total7).toLocaleString('et-EE',{style: 'decimal' });
             total6 = Math.round(total6).toLocaleString('et-EE',{style: 'decimal' });
             total5 = Math.round(total5).toLocaleString('et-EE',{style: 'decimal' });
             total4 = Math.round(total4).toLocaleString('et-EE',{style: 'decimal' });
-            total3 = Math.round(total3).toLocaleString('et-EE',{style: 'decimal' });
 
-          $(thead).find('th').eq(9).html( 'Tarnitud<br>'+(total9) );
-          $(thead).find('th').eq(8).html( 'Kokku<br>'+(total8) );
-          $(thead).find('th').eq(7).html( '&Sigma;>Tähtaja<br>'+(total7) );
-          $(thead).find('th').eq(6).html( 'Vanem<br>'+(total6) );
-          $(thead).find('th').eq(5).html( '180P<br>'+(total5) );
-          $(thead).find('th').eq(4).html( '30P<br>'+(total4) );
-          $(thead).find('th').eq(3).html( 'Aegumata<br>'+(total3) );
+          $(thead).find('th').eq(10).html( 'Tarnitud<br>'+(total10) );
+          $(thead).find('th').eq(9).html( 'Kokku<br>'+(total9) );
+          $(thead).find('th').eq(8).html( '&Sigma;>Tähtaja<br>'+(total8) );
+          $(thead).find('th').eq(7).html( 'Vanem<br>'+(total7) );
+          $(thead).find('th').eq(6).html( '180P<br>'+(total6) );
+          $(thead).find('th').eq(5).html( '30P<br>'+(total5) );
+          $(thead).find('th').eq(4).html( 'Aegumata<br>'+(total4) );
           },
         columns: [
           {
@@ -329,6 +445,11 @@ block content
         //  "render"         : function (data, type, row, meta) {
         //    return  null;
         //    },
+          "orderable"      : true
+          },
+          {
+          "defaultContent" : '',
+          "data"           : "KOONDARVE",
           "orderable"      : true
           },
          { "data"     : "Kliendi_nimi",
@@ -358,18 +479,23 @@ block content
           { "data"     : "ARVEID" },
         ],
         "columnDefs": [
-          { className: "dt-right", "targets": [3,4,5,6,7,8,9,10,11] },
-          { className: "dt-nowrap", "targets": [2] }
+          { className: "dt-right", "targets": [4,5,6,7,8,9,10,11,12] },
+          { className: "dt-nowrap", "targets": [3] }
           ],
-        "order": [[7, 'desc']]
+        "order": [[8, 'desc']]
       });
       //
-      // Add event listener for opening and closing details
+      // Add event listener for opening and closing row details
       //
       $('#pickle tbody').on('click', 'td.details-control', function () {
         var tr = $(this).closest('tr');
+        //Find opened row number
         var row = table.row( tr );
-        //console.log("EVENT WORKS");
+        //console.log(row);
+        var rownr = (row[0].toString());
+        //write row number to rownr attribute
+        tr.attr("rownr" , "rownr" + rownr);
+        //console.log(tr);
         if ( row.child.isShown() ) {
           // This row is already open - close it
           row.child.hide();
@@ -378,20 +504,20 @@ block content
           else {
           // Open this row
           //alert("avan rea");
-          row.child( formaat(row.data()) ).show();
+          row.child( formaat(row.data(), "rownr" + rownr) ).show();
           tr.addClass('shown');
           }
           } ); //listener for green button
       //
-      //listener for muuda tekst modal parameters
+      //listener for kommentaar modal open
       //
       $('#muudatekst').on('show.bs.modal', function (event) {
           //console.log('MODAL');
-          var button = $(event.relatedTarget) // Button that triggered the modal
-          var recipient = button.data('url') // Extract info from data-* attributes
-          var createdby = button.data('user')
+          var button = $(event.relatedTarget); // Button that triggered the modal
+          var recipient = button.data('url'); // Extract info from data-* attributes
+          var createdby = $('#sisseloginudkasutaja').text();
           var tekst = button.data('tekst');
-          //console.log(tekst);
+          //console.log(createdby);
           if (tekst != null && tekst.length > 999){
           alert('Kommentaari pikkus võib maksimaalselt olla 1000 märki. Tee kommentaar lühemaks ja salvesta uuesti');
           return;
@@ -400,35 +526,128 @@ block content
           // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
           var modal = $(this);
           modal.find('.modal-body input[name="KOMMENTAAR"]').val(tekst);
-          modal.find('.modal-body form').attr('action', '/clients/customers/customers/'+recipient+'/update');
+          //modal.find('.modal-body form').attr('action', '/clients/customers/customers/'+recipient+'/update');
           modal.find('.modal-body input[name="CREATEDBY"]').val(createdby);
+          modal.find('.modal-body button').attr("id", "nuppMuudaKommentaar")
+          .attr("data-rn", button.data('rn'))
+          .attr("data-url", '/clients/customers/customers/'+recipient+'/update');
           })
-        //listener for tekst arhiivi table creation
+
+      /*
+      * Listener for Comments Save button #nuppMuudaKommentaar
+      */
+      $(document).on('click', '#nuppMuudaKommentaar' , function(event) {
+        event.preventDefault();
+        var url = '';
+        var button = $(event.relatedTarget);
+        //find row identificator
+        var rn = parseInt(event.target.dataset.rn.replace('rownr',''));
+        url = event.target.dataset.url;
+        //console.log(event.target.dataset.url);
+        modal=$("#muudatekst");
+        var tekst = modal.find('.modal-body input[name="KOMMENTAAR"]').val();
+        if (tekst != null && tekst.length > 999){
+          alert('Kommentaari pikkus võib maksimaalselt olla 1000 märki. Tee kommentaar lühemaks ja salvesta uuesti');
+          return;
+        } else {
+          var createdby = modal.find('.modal-body input[name="CREATEDBY"]').val();
+          //console.log($(this));
+          //ajax post comments to database
+          $.post( url,
+            {KOMMENTAAR: tekst,
+            CREATEDBY: createdby
+            }, function () {
+              var row = table.row(rn);
+              //console.log(row.data());
+              row.child( formaat(row.data(), "rownr" + rn) ).show();
+              $('#muudatekst').modal('hide');
+            });
+          //find row that opened modal
+          //var row = document.querySelector('tr[rownr="'+rn+'"]');
+        }
+      });
+
       //
-      // Ajalugu nupu modaal
+      // Listener for arveTabel initialized
       //
-      $('#ajalugu').on('show.bs.modal', function (event) {
-            //console.log('MODAL');
-            var button = $(event.relatedTarget) // Button that triggered the modal
-            var recipient = button.data('url') // Extract info from data-* attributes
+    /*  $('#arveTabel').on('click', function() {
+        var arveTabel = $('#arveTabel').DataTable().buttons.exportData({
+        stripHtml: false
+        });
+        console.log(convertTableToHtml(arveTabel));
+      });*/
+
+      // Listener for SP Leping button
+      // Avab SP lepingu uues aknas
+      //
+      $(document).on('click', '#SPlink', function (event) {
+
+            //var button = $(event.relatedTarget) // Button that triggered the modal
+            var SPLeping = $(this).attr('data-url') // Extract info from data-* attributes
             // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
             // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
-            var modal = $(this);
-            var url = "/clients/customers/customers/"+recipient+"/komm";
-            $.getJSON(url, function( data) { //read customer comments history from url
+            //var modal = $(this);
+            //console.log(SPLeping);
+            var url = "https://febas.sharepoint.com/Lists/Kliendilepingud/DispForm.aspx?ID="+SPLeping;
+            window.open(url, '_blank');
+          });
 
+      // Listener for Uus SP Leping
+      // Loob SP lepingu ja avab selle redigeerimiseks uues aknas
+      //
+      $(document).on('click', '#SPcreate', function (event) {
+            $('body').addClass('waiting');
+            //var button = $(event.relatedTarget); // Button that triggered the modal
+            var SPLeping = $(this).attr('data-url'); // Extract info from data-* attributes
+            var SPNimi = $(this).attr('data-name');
+            // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+            // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+            //var modal = $(this);
+            //console.log(SPLeping);
+            var url = "/test/"+SPLeping+"/"+SPNimi+"/0";
 
-                $(".kommentaar").remove();
-                for (var i = 0; i < data.length; i++) {
-                  var row = ("<tr class='kommentaar'><td>" +data[i].KOMMENTAAR+ "</td><td>" +data[i].CREATED+ "</td><td>"+data[i].CREATEDBY+"</td></tr>")
-                  $("#kommTabel tbody").append(row);
-                }
+            //
+            // API call "add" customer to SP
+            //
+            $.getJSON(url, function (vastus) {
+              //alert(JSON.parse(vastus).LepingId);
+              var urluus = "https://febas.sharepoint.com/Lists/Kliendilepingud/EditForm.aspx?ID="+
+              JSON.parse(vastus).LepingId;
+              $('body').removeClass('waiting');
+              location.reload();
+              var win = window.open(urluus, '_blank');
+              if (win) {
+                win.focus();
+              } else {
+              alert('Luba sellel saidil popup aknad, muidu ei saa avada kliendilepingu redigeerimise akent!');
+              }
 
-            })
-          })
-      //listener for arved modal
+            });
+            //window.open(url, '_blank');
+        });
+
+        // Listener for SP Leping button
+        // Avab SP lepingu uues aknas
+        //
+        $(document).on('click', '#SPfirma', function (event) {
+
+              //var button = $(event.relatedTarget) // Button that triggered the modal
+              var SPfirma = $(this).attr('data-url'); // Extract info from data-* attributes
+              // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+              // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+              //var modal = $(this);
+              //console.log(SPfirma);
+              var url = "https://febas.sharepoint.com/Lists/Firma/DispForm.aspx?ID="+SPfirma;
+              window.open(url, '_blank');
+            });
+
+      //
+      //listener for showing arved modal
+      //
       $('#arved').on('show.bs.modal', function (event) {
             //console.log('MODAL');
+            $('#emailForm').addClass('hidden');
+            $('#arveTabel').DataTable().button(5).enable();
             var button = $(event.relatedTarget) // Button that triggered the modal
             var recipient = button.data('url') // Extract info from data-* attributes
             // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
@@ -437,48 +656,63 @@ block content
             var arvedurl = "/clients/customers/customers/"+recipient+"/arve";
             var kliendinimi = button.data('nimi');
             var yleTahtaja = 0;
+            var mail = button.data('email');
             var aeg = new Date();
-            var kuu = ((aeg.getMonth().length+1)===1)? (aeg.getMonth() + 1) : "0" + (aeg.getMonth() + 1);
-            $("#kliendinimi").text(kliendinimi + " tasumata arved seisuga " +
+            var kuu = ((aeg.getMonth()+1)>=10)? (aeg.getMonth() + 1) //till oct add 0 to beginning
+            : "0" + (aeg.getMonth() + 1);
+            //console.log(aeg.getMonth());
+            //mail address to form field
+            $('#formcontrol1').val(mail);
+            var mailBody = $('#arveTabel').DataTable().buttons.exportData({
+            "stripHtml": false
+            })
+
+            //Invoices modal header
+            $("#kliendinimi").html("<b>"+kliendinimi + "</b> ( "+ mail
+            +" ) tasumata arved seisuga " +
             aeg.getDate()+"/"+ kuu +
             "/"+ aeg.getFullYear());
-            /*$.getJSON(url, function( dataArved) { //read customer invoices from url
 
-              if (dataArved.length > 0) {
-                $(".arve").remove();
-                var summa = 0;
-                var tsumma = 0;
-                var msumma=0;
-                for (var i = 0; i < dataArved.length; i++) {
-                  summa += dataArved[i].ARVE_SUMMA;
-                  tsumma += dataArved[i].TASUTUD;
-                  msumma += dataArved[i].TASUMATA;
-                  var row = ("<tr class='arve'><td>" +data[i].ARVE_NUMBER
-                  + "</td><td>"+dataArved[i].ARVE_KUUPÄEV
-                  + "</td><td>"+dataArved[i].MAKSE_KUUPÄEV
-                  + "</td><td>"+dataArved[i].ARVE_SUMMA
-                  + "</td><td>"+dataArved[i].TASUTUD
-                  + "</td><td>"+dataArved[i].TASUMATA
-                  + "</td><td>"+dataArved[i].FILIAAL
+
+            /*
+            * Kasutusest maas arvete tabel
+            */
+              /*$.getJSON(url, function( dataArved) { //read customer invoices from url
+
+                if (dataArved.length > 0) {
+                  $(".arve").remove();
+                  var summa = 0;
+                  var tsumma = 0;
+                  var msumma=0;
+                  for (var i = 0; i < dataArved.length; i++) {
+                    summa += dataArved[i].ARVE_SUMMA;
+                    tsumma += dataArved[i].TASUTUD;
+                    msumma += dataArved[i].TASUMATA;
+                    var row = ("<tr class='arve'><td>" +data[i].ARVE_NUMBER
+                    + "</td><td>"+dataArved[i].ARVE_KUUPÄEV
+                    + "</td><td>"+dataArved[i].MAKSE_KUUPÄEV
+                    + "</td><td>"+dataArved[i].ARVE_SUMMA
+                    + "</td><td>"+dataArved[i].TASUTUD
+                    + "</td><td>"+dataArved[i].TASUMATA
+                    + "</td><td>"+dataArved[i].FILIAAL
+                    +"</td></tr>")
+                    $("#arveTabel tbody").append(row);
+                  }
+                  var row = ("<tr class='arve'><td>"
+                  + "</td><td>"
+                  + "</td><td> Kokku"
+                  + "</td><td>"+summa
+                  + "</td><td>"+tsumma
+                  + "</td><td>"+msumma
+                  + "</td><td>"
                   +"</td></tr>")
-                  $("#arveTabel tbody").append(row);
-                }
-                var row = ("<tr class='arve'><td>"
-                + "</td><td>"
-                + "</td><td> Kokku"
-                + "</td><td>"+summa
-                + "</td><td>"+tsumma
-                + "</td><td>"+msumma
-                + "</td><td>"
-                +"</td></tr>")
-                $("#arveTabel tfoot").append(row);
+                  $("#arveTabel tfoot").append(row);
 
-              }
-            })*/
+                }
+                })*/
             //
             //Modaalaknasse kuvatav arvete tabel
             //
-
             var arvetable = $('#arveTabel').DataTable({
               destroy: true,
               ajax: {
@@ -487,16 +721,17 @@ block content
               dataSrc: ""
               },
               dom: 'Blrtip',
-              buttons: [
-                'copy', 'csv', 'excel',
+              buttons: [ //button definations
+                'copyHtml5', 'csvHtml5', 'excelHtml5',
                 {
-                extend: 'pdf',
+                extend: 'pdfHtml5', //add pdf title
                 title:  kliendinimi + " tasumata arved seisuga " +
                             aeg.getDate()+"/"+ kuu +
                             "/"+ aeg.getFullYear()
                 },
                 {
                 extend: 'print',
+                //autoPrint: false, print header
                 title:      kliendinimi + " tasumata arved seisuga " +
                             aeg.getDate()+"/"+ kuu +
                             "/"+ aeg.getFullYear(),
@@ -506,6 +741,15 @@ block content
                 $(win.document.body).find('h1')
                 .attr('id','printSection').wrap('<div class="header-print" id=printSection></div>');
                 }
+                },
+                { //button send email
+                  text: 'Email',
+                  action: function ( e, dt, node, config ) {
+                  //show email fields
+                    $('#emailForm').removeClass('hidden');
+                  //disable email button until email is sent
+                    arvetable.button(5).disable();
+                  }
                 }
               ],
               createdRow: function(row, data, dataIndex) {
@@ -519,7 +763,9 @@ block content
                           i : 0;
                 };
                 if( moment().isAfter(moment(data.MAKSE_KUUPÄEV, 'DD-MM-YYYY'))) {
-                  $('td:eq(2)', row).addClass('bold-red');
+                //add bold-red if invoice due date is past, add style for email
+                  $('td:eq(2)', row).addClass('bold-red')
+                  .wrapInner('<span class="bold-red" style="font-weight: bold; color: red;"></span>');
                   $('td:eq(5)', row).addClass('yleaja');
                   //yleTahtaja+=intVal(data.TASUMATA);
                   //console.log(yleTahtaja);
@@ -571,7 +817,7 @@ block content
                   var yleaja = yleTahtaja.toLocaleString('et-EE',{maximumFractionDigits: 2 });
 
                 $(thead).find('th').eq(5).html( 'Tasumata<br>'+(total5)+'<br>'
-                +'<span class="bold-red">'+yleaja+'</span>' );
+                +'<span style="font-weight: bold; color: red;">'+yleaja+'</span>' );
                 $(thead).find('th').eq(4).html( 'Tasutud<br>'+(total4) );
                 $(thead).find('th').eq(3).html( 'Summa<br>'+(total3));
                 },
@@ -579,9 +825,12 @@ block content
                 {data : 'ARVE_NUMBER'},
                 {data : 'ARVE_KUUPÄEV'},
                 {data : 'MAKSE_KUUPÄEV'},
-                {data : 'ARVE_SUMMA'},
-                {data : 'TASUTUD'},
-                {data : 'TASUMATA'},
+                {data : 'ARVE_SUMMA',
+                "render"   : $.fn.dataTable.render.number( ' ', ',', 2 )},
+                {data : 'TASUTUD',
+                "render"   : $.fn.dataTable.render.number( ' ', ',', 2 )},
+                {data : 'TASUMATA',
+                "render"   : $.fn.dataTable.render.number( ' ', ',', 2 )},
                 {data : 'FILIAAL'}
                 ],
               columnDefs: [
@@ -593,25 +842,140 @@ block content
           });
       //delete modal contents
       $("body").on("click", ".close", function(){
-        // delete arved content
+        // delete arved and kommentaar content
           $(".arve").remove();
           $(".kommentaar").remove();
           });
-        //add print id for printing area
+
+      //add print id for printing area
       $(document).on('click', '#btnPrint', function(){
             $('.printMe').printElem();
           });
-        //add events for table filters
-        $(":checkbox, :radio").on("click", function() {
-            table.draw();
+
+      //send mail
+      $(document).on('click', '#saadaMail', function(){
+            $('#emailForm').addClass('hidden');
+            $('#arveTabel').DataTable().button(5).enable();
+            var arveTabel = $('#arveTabel').DataTable().buttons.exportData({
+            stripHtml: false,
+            format: {
+              body: function(d, e, f, g) {
+                //console.log(d);
+                //console.log(e);
+                //console.log(f);
+                var spanColor = $(g).filter(".bold-red");
+                //console.log($(g).filter(".bold-red")[0].innerHTML);
+                return spanColor.length > 0 ? spanColor[0].innerHTML : d;
+              }
+            }
+            });
+            var emailAddress = parseEmailAddress($('#formcontrol1').val());
+             var mailMessage = constructEmailMessage(emailAddress,
+             convertTableToHtml(arveTabel),
+             $('#formcontrol2').val(),
+             $('span#kliendinimi').text()
+             );
+            //console.log(arveTabel);
+            //$('#testarea').html(parseEmailAddress($('#formcontrol1').val())
+            //.join(', ')+'<br>' + convertTableToHtml(arveTabel));
+            //$('#testarea').html(JSON.stringify(mailMessage));
+            //console.log($('#sisseloginudkasutajaemail').text())
+            //ajax post comments to database
+            $.post( '/clients/customers/sendMail',
+              { message: JSON.stringify(mailMessage),
+                user: $('#sisseloginudkasutajaemail').text()},
+                function (status) {
+                if(status.status == 202) {
+                  alert("Kiri saadetud!");
+                } else {
+                  alert("Kirja ei saadetud! Staatus "+status.status );
+                }
+                //console.log(status);
+              });
+
           });
-      /*$("#limiit").on("click", function() {
+
+      //cancel mail
+      $(document).on('click', '#cancelMail', function(){
+            $('#emailForm').addClass('hidden');
+            $('#arveTabel').DataTable().button(5).enable();
+            $('#testarea').html('');
+          });
+
+      //add events for table filters
+      $("#limiit:checkbox, #tahtaeg:checkbox, :radio").on("click", function() {
           table.draw();
+          //console.log('Table DRAW');
+          });
+      $("#kokkuArved:checkbox").on("click", function() {
+      /*  if($("#kokkuArved").is(':checked'))
+          table.column(9).search('.0', true, false).draw();
+        else
+          table.columns().search('').draw();*/
+          //console.log('click kokku arved');
+          table.draw();
+          });
+
+      //delete comments event
+      $(document).on("click", ".deleterow", function (e){
+        if(confirm('Kas soovid kommentaari kustutada?')) {
+          var rn = parseInt($(this).closest('table[data-rn]').data('rn').replace('rownr',''));
+          var row = table.row(rn);
+          var url = "/clients/customers/customers/deletecomment";
+          var comment={};
+          comment.kommId = parseInt((e.target.id).substring(4));
+          comment.deleted = $('#sisseloginudkasutaja').text();
+          $.post(url, comment, function(){
+          //location.reload();
+          row.child( formaat(row.data(), "rownr" + rn) ).show();
+          });
+        } else {
+          e.preventDefault();
+        }
         });
-      $("#tahtaeg").on("click", function() {
-          table.draw();
-        });*/
+
+      //Check every 15 minutes if DB is updated do refresh
+      var xx = setInterval(function() {
+        //retrieve timestamp from db
+        $.getJSON('/clients/customers/timestamp', function( data) {
+          var newTimeStamp = data[0].DB_UPDATETIME;
+          //console.log(newTimeStamp);
+          if(data.length > 0) {
+            if(Date.parse(newTimeStamp) > Date.parse(mainTimeStamp) ) {
+
+              var cdCounter = 9; //..from to 0
+              //counts seconds and refresh if no user activity
+              setIntervalX( function(a) {
+                var tulemus = cdCounter-a; //a is step counter
+                if(a < 10) {
+                 $('#cdTimer').text(tulemus).removeClass('hidden');
+                 } else {
+                  mainTimeStamp = newTimeStamp;
+                  $('#cdTimer').addClass('hidden');
+                  location.reload();
+                  }
+              }, 1000, 11);
+
+            }
+          }
+        });
+        }, 900000);
     }); //end document ready
+
+    // interval fn runs repetitions times
+    function setIntervalX(callback, delay, repetitions) {
+      var x = 0;
+      var intervalID = window.setInterval(function () {
+
+        callback(x);
+
+       if (++x === repetitions) {
+           window.clearInterval(intervalID);
+       } else if (idleTime === 0) { //user has made input
+          x = 0;
+       }
+       }, delay);
+    };
     //printimine
     jQuery.fn.extend({
     	printElem: function() {
@@ -630,7 +994,7 @@ block content
         toggleBody.show();
     	}
     });
-    function formaat ( d ) {
+    function formaat ( d, rn ) {
       // `d` is the original data object for the row
       //console.log(d);
       var detailsTable = [];
@@ -647,7 +1011,10 @@ block content
       var kontaktUrl = "/clients/customers/customers/"+d.ID+"/kontakt";
       $.getJSON(kontaktUrl+'?'+new Date().getTime(), function( kontaktData) { //read customer comments history from url
         $.getJSON(url+'?'+new Date().getTime(), function( data) { //read customer comments history from url
-          detailsTable[0] = '<div class="row"><div class="col-lg-12"><table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">';
+          detailsTable[0] = '<div class="row"><div class="col-lg-8">' //detailandmed
+          +'<table cellpadding="5" cellspacing="0" border="0"'
+          +' style="padding-left:50px;">';
+          //Customer details table row 1
           detailsTable[1] = '<tr>';
           detailsTable[2] = '<td class="alamtabel">Krediidilimiit</td>';
           detailsTable[3] = '<td>'+Number(d.KRED_LIMIIT).toFixed(2)+'</td>';
@@ -655,9 +1022,10 @@ block content
           detailsTable[5] = '<td>'+d.TEHNIK+'</td>';
           detailsTable[6] = '<td class="alamtabel">Kliendikood:</td>';
           detailsTable[7] = '<td>'+d.KLIENDIKOOD+'</td>';
-          //detailsTable[8] = '<td class="alamtabel">Märkus:</td>';
-          //detailsTable[9] = '<td>'+d.MÄRKUS_1+'</td>';
-          detailsTable[10] = '</tr>';
+          //detailsTable[8] = '<td class="alamtabel">Koondarve:</td>';
+          //detailsTable[9] = '<td>'+d.KOONDARVE+' korda kuus</td>';
+          detailsTable[10] = '</tr>'; //1 row end
+          //Customer details table row 2
           detailsTable[11] = '<tr>';
           detailsTable[12] = '<td class="alamtabel">MÄRKUS:</td>';
           detailsTable[13] = '<td>'+d.MÄRKUS_1+'</td>';
@@ -672,43 +1040,99 @@ block content
           //detailsTable[22] = '<td class="alamtabel">Maksmata arveid:</td>';
           //detailsTable[23] = '<td>'+d.ARVEID+'</td>';
           //detailsTable[23] = '</tr>';
-          detailsTable[25] = '<tr>';
+          //Customer details table row 3
+          detailsTable[25] = '<tr>';//buttons row starts
           detailsTable[26] = '<td class="alamtabel"></td>';
           //detailsTable[27] = '<td>'+d.KOMMENTAAR+'</td>';
-          detailsTable[28] = '<td><button type="button" class="btn btn-primary"'+
+          //Button Muudakommentaar
+          detailsTable[28] = '<td><button type="button" class="btn btn-primary btn-sm"'+
           ' data-toggle="modal" data-target="#muudatekst" data-url="'+d.ID+
-          '" data-user= "'+ $('#sisseloginudkasutaja').text() +'" data-tekst="'+d.KOMMENTAAR+'">'+
+          '" data-user= "'+ $('#sisseloginudkasutaja').text() +'" data-tekst="'/*+d.KOMMENTAAR*/+
+          '" data-rn="'+rn+'">'+
           'Muuda kommentaar</button></td>';
-          //detailsTable[29] = '<td><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#ajalugu" data-url="'+d.ID+'"> '+
-          //'Ajalugu</button></td>';
-          detailsTable[30] = '</tr>';
-          //detailsTable[31] = '<tr>';
-          //detailsTable[32] = '<td class="alamtabel">'+data[0].KOMMENTAAR+'</td>';
+          //Button open SP Leping
+          if(d.SP_ID != null) {
+            detailsTable[29] = '<td><button type="button" id="SPlink" class="btn btn-primary btn-sm" data-url="'+d.SP_ID+'"> '+
+            'SP Leping</button></td>';
+          //Button create SP leping
+          } else if (d.REG_NR != ''){
+          detailsTable[29] = '<td><button type="button" id="SPcreate" class="btn btn-primary btn-sm" data-url="'+
+          d.REG_NR+'" '+ ' data-name="'+d.Kliendi_nimi+'">'+
+          'Uus SP Leping</button></td>';
+          }
+          //button SP Firma
+          if(d.SP_FIRMA_ID != null) {
+            detailsTable[30] = '<td><button type="button" id="SPfirma" '+
+            'class="btn btn-primary btn-sm" data-url="'+d.SP_FIRMA_ID+'"> '+
+            'SP Firma</button></td>';
+          }
+          //button row and details table ends finantsist table starts
+          detailsTable[31] = '</tr></table></div>'+
+          '<div class="col-lg-4">'+
+          '<div class="panel-group">';
+          //finantsist table
+           if(d.F_NIMI != null || d.F_TELEFON != null || d.F_EMAIL != null){
+            //console.log(d.F_EMAIL);
+            detailsTable[32] = '<div class="panel panel-default">'+
+            '<div class="panel-heading">'+
+            '<strong>Finantsisti andmed:</strong>'+
+            '</div>'+ //panel heading end
+            '<div class="panel-body">'+
+            '<table class="borderless" cellpadding="1" cellspacing="0" '+
+            'border="0" style="padding-left:10px;">'+
+            '<tr><td><strong>Nimi:</strong></td>'+
+            '<td>'+d.F_NIMI+'</td></tr>'+
+            '<tr><td><strong>Telefon:</strong></td>'+
+            '<td>'+d.F_TELEFON+'</td></tr>'+
+            '<tr><td><strong>E-mail:</strong></td>'+
+            '<td>'+d.F_EMAIL+'</td></tr>'+
+            '</table>'+ //finantsist table end
+            '</div>'+ //panel-body end
+            '</div>'; //panel end
+            };
           //detailsTable[33] = '';
           //detailsTable[34] = '</tr>';
-          detailsTable[35] = '</table></div></div>';
-          detailsTable[36] = '<div class="row"><div class="col-lg-6"><div class="panel panel-default">'+
-          '<div class="panel-heading alamtabel"><strong>Kommentaarid:</strong></div>'+
+          //end finantsist div col-lg-4 col-row
+          detailsTable[35] = '</div>'+ //panel group end
+          '</div>'+ //col-lg-4 end
+          '</div>'; //col row end
+          //subtable Kommentaarid
+          detailsTable[36] = '<div class="row"><div class="col-lg-6">'+ //kommentaarid
+          '<div class="panel panel-default">'+
+          '<div class="panel-heading alamtabel">'+
+          '<strong>Kommentaarid:</strong></div>'+
           '<div class="panel-body">'+
-          '<table class="fix-height" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">';
+          '<table class="fix-height" cellpadding="5" cellspacing="0"'
+          +' border="0" style="padding-left:50px;" data-rn="'+rn+'">';
           detailsTable[37] = '<tr><td></td><td></td><td></td></tr>';
           //detailsTable[38] = '</tr>';
+          //Subtable Kontaktisikud
           detailsTable[39] = '</table></div></div></div>';
-          detailsTable[40] = '<div class="col-lg-6"><div class="panel panel-default">';
-          detailsTable[41] = '<div class="panel-heading alamtabel"><strong>Kontaktisikud:</strong></div>';
-          detailsTable[42] = '<div class="panel-body"><table class="fix-height" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">';
-          detailsTable[43] = '<tr><td><strong>Nimi</strong></td><td><strong>Isikukood</strong></td>'+
+          detailsTable[40] = '<div class="col-lg-6">'+ //kontaktisikud
+          '<div class="panel panel-default">';
+          detailsTable[41] = '<div class="panel-heading alamtabel">'+
+          '<strong>Kontaktisikud:</strong></div>';
+          detailsTable[42] = '<div class="panel-body">'+
+          '<table class="fix-height" cellpadding="5" cellspacing="0" '+
+          'border="0" style="padding-left:50px;">';
+          detailsTable[43] = '<tr><td><strong>Nimi</strong></td>'+
+          '<td><strong>Isikukood</strong></td>'+
                             '<td><strong>Kehtivus</strong></td>'+
-                            '<td><strong>Telefon</strong></td><td><strong>E-mail</strong></td>'+
-                            '<td><strong>Bkaart</strong></td><td><strong>Märkused</strong></td></tr>';
+                            '<td><strong>Telefon</strong></td>'+
+                            '<td><strong>E-mail</strong></td>'+
+                            '<td><strong>Bkaart</strong></td>'+
+                            '<td><strong>Märkused</strong></td></tr>';
           detailsTable[45] = '</table></div></div></div>';
 
           //create comments Table
           //console.log(kontaktData.length);
           if (data.length > 0) {
             for (var i=0; i < data.length; i++) {
-              kommentsTable[i] = '<tr><td>'+data[i].KOMMENTAAR+'</td><td>'+
+              //console.log(data[i].DELETED);
+              if(!data[i].DELETED) {
+              kommentsTable[i] = '<tr><td class="deleterow" id="komm'+data[i].ID+'"></td><td>'+data[i].KOMMENTAAR+'</td><td>'+
               data[i].CREATED+ '</td><td>'+data[i].CREATEDBY+'</td></tr>';
+              }
             }
           detailsTable[38] = kommentsTable.join('');
           } else {
@@ -735,10 +1159,78 @@ block content
           details
               .html(detailsTable.join(''))
               .removeClass('loading');
-        });
-      });
+        }); //end getJSON
+      }); //end getJSON
       return details;
     //          for (var i = 1; i < ((data.length < 5) ? data.length : 5 ); i++) {
     //            '<tr class="alamtabel"><td>' +data[i].KOMMENTAAR+ '</td>'/*<td>" +data[i].CREATED+ "</td><td>"+data[i].CREATEDBY+"</td>*/+'</tr>'
     //          } +
+    }
+    function convertTableToHtml(myTable) {
+      //console.log(myTable);
+      var html = "<table>"+
+      "<style>th, td {border-bottom: 1px solid #ddd; padding: 4px;}"+
+      "th {font-weight: bold;}</style>";
+      //add header row
+      html += "<tr>";
+      for(var i=0;i<myTable.header.length;i++)
+          html+="<td>"+myTable.header[i]+"</td>";
+      html += "</tr>";
+      //add rows
+      for (var i = 0; i < myTable.body.length; i++)
+      {
+          html += "<tr>";
+          for (var j = 0; j< myTable.body[0].length; j++) {
+            if (j== 3 || j== 4 || j == 5) {
+              html += "<td style='text-align: right;'>" + myTable.body[i][j] + "</td>";
+            } else {
+              html += "<td>" + myTable.body[i][j] + "</td>";
+            }
+          }
+
+
+          html += "</tr>";
+      }
+      html += "</table>";
+      return html;
+    }
+    //parse email adresses from string
+    function parseEmailAddress (text) {
+     return text.match(/[A-z0-9]+.[A-z0-9]+@[A-z0-9]+.[A-z]{2,3}/g);
+    }
+
+    // Construct email from address - array of addresses,
+    // htmltable - string, usermessage - string, userSubject - string
+    function constructEmailMessage (emailaddress, htmlTable, userMessage, userSubject) {
+
+      var torecipients = [];
+      userMessage = userMessage.replace(/\n/g, '</br>');
+
+        for(var i = 0; i < emailaddress.length; i++) {
+          var emailAddress = {
+            EmailAddress: {
+              Address: emailaddress[i]
+              }
+            }
+            torecipients.push(emailAddress);
+          }
+      var emailMessage = {
+        Message: {
+          Subject: userSubject,
+          Body: {
+            ContentType: 'HTML',
+            Content: "<html><head> <meta http-equiv='Content-Type'"+
+            " content='text/html; charset=us-ascii'>"+
+            "<style>th, td {border-bottom: 1px solid #ddd; padding: 4px;}"+
+            "th {font-weight: bold;}td.align-right {text-align: right;}</style>"+
+            " <title></title> </head>\n "+
+            " <body style='font-family:calibri'><p>"+
+            userMessage+"</p></br>"+
+            htmlTable+"</body></html>"
+          },
+          ToRecipients: torecipients
+        },
+        SaveToSentItems: true
+      };
+      return emailMessage;
     }
