@@ -674,53 +674,20 @@ block content
             "/"+ aeg.getFullYear());
 
 
-            /*
-            * Kasutusest maas arvete tabel
-            */
-              /*$.getJSON(url, function( dataArved) { //read customer invoices from url
 
-                if (dataArved.length > 0) {
-                  $(".arve").remove();
-                  var summa = 0;
-                  var tsumma = 0;
-                  var msumma=0;
-                  for (var i = 0; i < dataArved.length; i++) {
-                    summa += dataArved[i].ARVE_SUMMA;
-                    tsumma += dataArved[i].TASUTUD;
-                    msumma += dataArved[i].TASUMATA;
-                    var row = ("<tr class='arve'><td>" +data[i].ARVE_NUMBER
-                    + "</td><td>"+dataArved[i].ARVE_KUUPÄEV
-                    + "</td><td>"+dataArved[i].MAKSE_KUUPÄEV
-                    + "</td><td>"+dataArved[i].ARVE_SUMMA
-                    + "</td><td>"+dataArved[i].TASUTUD
-                    + "</td><td>"+dataArved[i].TASUMATA
-                    + "</td><td>"+dataArved[i].FILIAAL
-                    +"</td></tr>")
-                    $("#arveTabel tbody").append(row);
-                  }
-                  var row = ("<tr class='arve'><td>"
-                  + "</td><td>"
-                  + "</td><td> Kokku"
-                  + "</td><td>"+summa
-                  + "</td><td>"+tsumma
-                  + "</td><td>"+msumma
-                  + "</td><td>"
-                  +"</td></tr>")
-                  $("#arveTabel tfoot").append(row);
-
-                }
-                })*/
             //
             //Modaalaknasse kuvatav arvete tabel
             //
             var arvetable = $('#arveTabel').DataTable({
               destroy: true,
+              paging: false,
+              scrollY: 600,
               ajax: {
               url : arvedurl,
               method: "GET",
               dataSrc: ""
               },
-              dom: 'Blrtip',
+              dom: 'Brti',
               buttons: [ //button definations
                 'copyHtml5', 'csvHtml5', 'excelHtml5',
                 {
