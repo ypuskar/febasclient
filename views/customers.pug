@@ -647,7 +647,7 @@ block content
       $('#arved').on('show.bs.modal', function (event) {
             //console.log('MODAL');
             $('#emailForm').addClass('hidden');
-            $('#arveTabel').DataTable().button(5).enable();
+            $('#arveTabel').DataTable().button(2).enable();
             var button = $(event.relatedTarget) // Button that triggered the modal
             var recipient = button.data('url') // Extract info from data-* attributes
             // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
@@ -689,7 +689,7 @@ block content
               },
               dom: 'Brti',
               buttons: [ //button definations
-                'copyHtml5', 'csvHtml5', 'excelHtml5',
+                //'copyHtml5', 'csvHtml5', 'excelHtml5',
                 {
                 extend: 'pdfHtml5', //add pdf title
                 title:  kliendinimi + " tasumata arved seisuga " +
@@ -715,7 +715,39 @@ block content
                   //show email fields
                     $('#emailForm').removeClass('hidden');
                   //disable email button until email is sent
-                    arvetable.button(5).disable();
+                    arvetable.button(2).disable();
+                  }
+                },
+                { //button copy clipboard
+                  text: 'CopyHtml',
+                  action: function ( e, dt, node, config ) {
+                  //copy arved to clipboard
+                  var arveTabel = $('#arveTabel').DataTable().buttons.exportData({
+                    stripHtml: false,
+                    format: {
+                      body: function(d, e, f, g) {
+                        //console.log(d);
+                        //console.log(e);
+                        //console.log(f);
+                        var spanColor = $(g).filter(".bold-red");
+                        //console.log($(g).filter(".bold-red")[0].innerHTML);
+                        return spanColor.length > 0 ? spanColor[0].innerHTML : d;
+                      }
+                    }
+                    });
+                  
+                  var el = document.createElement('textarea');
+                  el.id = 'copyclip';
+                  el.value = convertTableToHtml(arveTabel);
+                  $("#arved").find(".modal-header").append(el);
+                  //console.log($("#arved").find(".modal-header").html());
+                  //document.body.appendChild(el);
+                  //el.focus();
+                  el.select();
+                  var b = document.execCommand('copy');
+                  $("#copyclip").remove();
+                    //alert(b);
+
                   }
                 }
               ],
@@ -822,7 +854,7 @@ block content
       //send mail
       $(document).on('click', '#saadaMail', function(){
             $('#emailForm').addClass('hidden');
-            $('#arveTabel').DataTable().button(5).enable();
+            $('#arveTabel').DataTable().button(2).enable();
             var arveTabel = $('#arveTabel').DataTable().buttons.exportData({
             stripHtml: false,
             format: {
@@ -865,7 +897,7 @@ block content
       //cancel mail
       $(document).on('click', '#cancelMail', function(){
             $('#emailForm').addClass('hidden');
-            $('#arveTabel').DataTable().button(5).enable();
+            $('#arveTabel').DataTable().button(2).enable();
             $('#testarea').html('');
           });
 
@@ -989,8 +1021,8 @@ block content
           detailsTable[5] = '<td>'+d.TEHNIK+'</td>';
           detailsTable[6] = '<td class="alamtabel">Kliendikood:</td>';
           detailsTable[7] = '<td>'+d.KLIENDIKOOD+'</td>';
-          //detailsTable[8] = '<td class="alamtabel">Koondarve:</td>';
-          //detailsTable[9] = '<td>'+d.KOONDARVE+' korda kuus</td>';
+          detailsTable[8] = '<td class="alamtabel">Makseaeg:</td>';
+          detailsTable[9] = '<td>'+d.MAKSETINGIMUS+' korda kuus</td>';
           detailsTable[10] = '</tr>'; //1 row end
           //Customer details table row 2
           detailsTable[11] = '<tr>';
