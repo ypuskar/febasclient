@@ -59,6 +59,7 @@ if (req.user != undefined) {
                         ' k.[TARNEKEELD],'+
                         ' k.[MÄRKUS_2],'+
                         ' k.KOMMENTAAR,'+
+//                        ' k.MAKSETINGIMUS,'+
                         ' k.ID,'+
                         ' k.KLIENDIKOOD,'+
                         ' k.AEGUMATA,'+
@@ -78,12 +79,12 @@ if (req.user != undefined) {
                         ' k.SP_FIRMA_ID,'+
                         ' k.F_NIMI,'+
                         ' k.F_TELELFON AS F_TELEFON,'+
-                        ' k.F_EMAIL'+
+                        ' k.F_EMAIL,'+
 //                        ' COUNT(a.ID) over (partition by k.id) AS [Maksmata_arveid],'+
 //                        ' SUM(a.tasumata) over (partition by k.id) as [Tasumata_SUM],'+
-//                        ' p.[MT_NIMETUS] as Maksetingimus'+
-                        ' FROM [MR_KLIENDID] k',
-//                        ' JOIN [MR_MAKSETINGIMUS] p ON k.MAKSETINGIMUS = p.MT'+
+                        ' p.[MT_NIMETUS] as MAKSETINGIMUS'+
+                        ' FROM [MR_KLIENDID] k'+
+                        ' JOIN [MR_MAKSETINGIMUS] p ON k.MAKSETINGIMUS = p.MT',
 //                        ' LEFT OUTER JOIN [MR_ARVED] a ON k.ID = a.KLIENDI_ID',
           function(result){
 
