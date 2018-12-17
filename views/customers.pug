@@ -111,8 +111,8 @@ block content
                 input(name="tarnekeeld", id="tarnekeeldA", type="radio", value="A")
                 |  J:
                 input(name="tarnekeeld", id="tarnekeeldJ", type="radio", value="J")
-                //|  1:
-                //input(name="tarnekeeld", id="tarnekeeld1", type="radio", value="1")
+                |  E:
+                input(name="tarnekeeld", id="tarnekeeldE", type="radio", value="E")
                 |  2:
                 input(name="tarnekeeld", id="tarnekeeld2", type="radio", value="2")
                 |  X:
@@ -186,6 +186,12 @@ block content
         !($("#tahtaeg").is(':checked'))&&
         ($("#tarnekeeld2").is(':checked'))&&
         (rowData.TARNEKEELD == '2'))
+          return true;
+        //limiit ja tarnekeeld pole valitud ja tarnekeeldE valitud ja true
+        else if(!($("#limiit").is(':checked'))&&
+        !($("#tahtaeg").is(':checked'))&&
+        ($("#tarnekeeldE").is(':checked'))&&
+        (rowData.TARNEKEELD == 'E'))
           return true;
         //limiit, tarnekeeld pole valitud, tarnekeeld0 ja kokku valitud
         else if(!($("#limiit").is(':checked'))&&
@@ -343,6 +349,8 @@ block content
         rowCallback: function(row, data, index) {
           if( data.YLE_MT == 1 || data.VABA_LIMIIT < 0 ) {
             $('td:eq(3)', row).addClass('bold-red');
+          } else if (data.TARNEKEELD === 'E') {
+            $('td', row).addClass('back-yellow');
           }
           //add button for arved modal
           if(data.ARVEID > 0) {
@@ -484,6 +492,9 @@ block content
           ],
         "order": [[8, 'desc']]
       });
+
+
+
       //
       // Add event listener for opening and closing row details
       //
