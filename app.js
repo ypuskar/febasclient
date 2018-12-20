@@ -22,6 +22,7 @@ var helmet = require('helmet');
 var graphHelper = require('./handlers/passportHelper.js');
 var updateCustomer = require('./handlers/handlers.js').sp_id_json;
 var createSPContract = require('./handlers/handlers.js').createSPContract;
+var updateArh = require('./handlers/handlers.js').updateArh;
 
 // Start QuickStart here
 
@@ -84,6 +85,9 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+//check ARH and update SP Arhiivis
+setInterval(startArh, 60000, 17, 26);
+//startArh(17,23);
 app.get('/',  function(req, res) {
   res.render('index', {user: req.user});
   //res.redirect('/clients/customers/customers');
@@ -486,6 +490,26 @@ function renderError(e, res) {
   res.render('error', {
     error: e
   });
+}
+
+function startArh(startHour, startMinute) {
+  let timeofNow = new Date();
+
+  /*
+  graphHelper.getGToken((err, response) => {
+    updateArh(JSON.parse(response.text).access_token);
+  });
+  */
+
+  if (startHour === timeofNow.getHours() && startMinute === timeofNow.getMinutes()) {
+
+    console.log('KUUPÄEV',timeofNow.getHours(),':',timeofNow.getMinutes());
+    /*
+    graphHelper.getGToken((err, response) => {
+      updateArh(JSON.parse(response.text).access_token);
+    });
+    */
+  } else return;
 }
 
 module.exports = app;

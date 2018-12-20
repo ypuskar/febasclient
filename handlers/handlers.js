@@ -4,6 +4,7 @@ var express = require('express');
 var Boom = require('boom');
 var app = express();
 var util = require('util');
+var patchSPContract = require('./passporthelper').patchSPContract;
 
 
 var Handlers = {};
@@ -346,6 +347,136 @@ exports.createSPContract = function(req, Registrikood, FirmaNimi, accessToken, r
     e.innerError = (e.response) ? e.response.text : '';
     res.render('error', {
       error: e
+    });
+  }
+
+  //fn checks from MR_kliendid ARH and updates Sharepoint contracts 5491
+  exports.updateArh = function(accessToken) {
+    //console.log(accessToken);
+
+    function readData(querystring) {
+      DataStore.executesql('', querystring,
+        function(updated){
+         // SQLupdated.push(item);
+          console.log(' UPDATED', updated);
+
+          //j++;
+        },{},30000);
+    }
+    function createQuery(massiiv, item) {
+      return massiiv.push("UPDATE MR_KLIENDID SET SP_ARH = GETDATE()"+
+      " WHERE SP_FIRMA_ID = "+ item + " ;")
+    }
+    DataStore.executesql({}, "SELECT TOP (1000) k.[SP_ID],"+
+    " k.[SP_FIRMA_ID]"+
+    " FROM MR_KLIENDID k WHERE [KLIENDIRÜHM] = 'ARH' AND SP_ID != 0 AND SP_ARH IS NULL" ,
+    function(result){
+      console.log(result.length);
+
+      //let querystring = result.map(item =>{return "UPDATE MR_KLIENDID SET SP_ARH = GETDATE()"+
+      //  " WHERE SP_FIRMA_ID = "+ item.SP_FIRMA_ID+ " ;"});
+      //console.log(querystring);
+      let j=0;
+      let m = 20;
+      let k=0;
+      let SPupdated = [];
+      let SPerr = [];
+      let SQLupdated = [];
+      let arrReminder = 0;
+      let arrLength = 0;
+
+     /* async function processArray(arr) {
+        for (const item of arr) {
+          await func(item);
+        }
+      }*/
+      function successCallback(item) {
+        return new Promise(function(resolve, reject){
+          patchSPContract(accessToken, item, {'Ajalugu' : true}, 
+          response => {
+            if (response !== null) {
+              resolve(null)
+            } else {
+              resolve(item)
+            }
+            }, err => {reject(err)})
+        })
+        //console.log('READY');
+      }
+      async function processCustomers(results) {
+
+          for (const item of results) {
+           await successCallback(item.SP_ID).then(function(resp) {
+               if(resp === null) console.log('VIGA')
+               else {console.log("Success!", resp); SPupdated.push(resp)}}, function(error) {
+                 console.error("Failed!", error);
+             });
+          }
+      
+
+       // await Promise.all(promises);
+        //console.log('FINISHED', SPupdated);
+        let querystring = SPupdated.map(item =>{return "UPDATE MR_KLIENDID SET SP_ARH = GETDATE()"+
+        " WHERE SP_ID = "+ item+ " ; "});
+        //console.log(querystring.join('\n'));
+        const pglength = 40;
+        arrReminder = querystring.length % pglength;
+        arrLength = Math.floor(querystring.length / pglength);
+        let queryarray = [];
+        if (arrLength > 0) {
+
+          for (let i=0; i < arrLength; i++) {
+            //readData(querystring.slice(i*pglength,i*pglength+pglength).join('\n'));
+            queryarray.push(querystring.slice(i*pglength,i*pglength+pglength).join(' '));
+          }
+          queryarray.map(query => readData(query));
+          console.log(queryarray);
+
+        } 
+        if (arrReminder > 0) {
+          readData(querystring.slice(arrLength*pglength, arrLength*pglength+arrReminder+1).join('\n'));
+          console.log(querystring.slice(arrLength*pglength, arrLength*pglength+arrReminder+1).join('\n'));
+        }
+      }
+
+      processCustomers(result);
+        //console.log(item);
+      /*  const patchpromise = new Promise(patchSPContract(accessToken, item.SP_FIRMA_ID, {'Ajalugu' : true}, 
+        res => {console.log(item)}, err => {console.log(err)}))
+       patchpromise.then(successCallback);*/
+        //.then(res =>{console.log('VALMIS')});
+      
+     /*   for (let i= 0; i < result.length; i++) {
+          let SPfirma = result[i].SP_FIRMA_ID;
+          (function (muutuja, accessToken) {
+            patchSPContract(accessToken, muutuja, {'Ajalugu' : true},
+            (err, res) => {
+              console.log('patchSP',i);
+              //k++;
+              if (err) {
+                SPerr.push(muutuja);
+                console.log ('SP UPDATE VIGA ', muutuja);
+              } else {
+                SPupdated.push(muutuja);
+                if(i % m === 0) {
+                  console.log('TIMEOUT');
+                  setTimeout(readData,15000,muutuja);
+                } else {
+                  readData(muutuja);
+                }
+
+                console.log(i, muutuja);
+              }
+              console.log('i',i);
+            });
+          })(SPfirma, accessToken);
+
+        }*/
+
+
+
+      //console.log('SP update:', SPupdated.length, 'SQL update:', SQLupdated.length)
+
     });
   }
 

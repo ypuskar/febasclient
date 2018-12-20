@@ -130,6 +130,7 @@ function getSPTest(aToken, Registrikood, callback) {
 }
 exports.getSPTest = getSPTest;
 
+//fn mis leiab SP -st firma registrikoodi alusel
 exports.getSPCustomer = function (Registrikood, callback) {
 
   var url = "https://febas.sharepoint.com/_api/Web/lists"+
@@ -163,6 +164,8 @@ exports.getSPCustomer = function (Registrikood, callback) {
       }
     }); //end getSPToken
 } //end getSPCustomer
+
+//leiab SP-st kliendilepingu
 exports.getSPContract = function (FirmaId, callback) {
 
   var url = "https://febas.sharepoint.com/_api/Web/lists(guid'0182799d-53c3-45da-8894-3e39ecaf65dc')/items?$filter=Nimi_x0020_otsingId eq '"+
@@ -190,6 +193,8 @@ exports.getSPContract = function (FirmaId, callback) {
       }
     }); //end getSPToken
 } //end getSPContract
+
+//lisab graphiga SP-sse uue firma
 exports.postSPCustomer = function (accessToken, fields, callback) {
 
   var url = "https://graph.microsoft.com/v1.0/sites/febas.sharepoint.com,2193468f-41a6-4a37-a762-14fb432fbb95,a41f917e-fafa-4ad3-9962-9fb386b1f26d/lists/0e29a37c-f5b0-485f-a91a-23094e9c1c0f/items";
@@ -209,6 +214,7 @@ exports.postSPCustomer = function (accessToken, fields, callback) {
    });
 } //end postSPCustomer
 
+//lisab graphiga SP-sse uue kliendilepingu
 exports.postSPContract = function (accessToken, fields, callback) {
 
   var url = "https://graph.microsoft.com/v1.0/sites/febas.sharepoint.com,2193468f-41a6-4a37-a762-14fb432fbb95,a41f917e-fafa-4ad3-9962-9fb386b1f26d/lists/0182799d-53c3-45da-8894-3e39ecaf65dc/items";
@@ -228,6 +234,36 @@ exports.postSPContract = function (accessToken, fields, callback) {
      callback(err, res);
    });
 } //end postSPContract
+
+//uuendab graphiga SP-s kliendilepingu välju
+exports.patchSPContract = function (accessToken, item, fields, callback, cberror) {
+  //console.log(item);
+  if (item != undefined && item > 0) {
+    var url = "https://graph.microsoft.com/v1.0/sites/"+
+    "febas.sharepoint.com,2193468f-41a6-4a37-a762-14fb432fbb95,a41f917e-fafa-4ad3-9962-9fb386b1f26d/"+
+    "lists/0182799d-53c3-45da-8894-3e39ecaf65dc/items/"+item+"/fields";
+    //console.log(fields);
+  /*  var fields = {};
+    fields.Title='TestFirma';
+    fields.Registrikood='TESTKOOD';*/
+
+    request
+        .patch(url)
+        //.get("http://febas.sharepoint.com/_api/Web/lists/GetByTitle('Firma')/Items(100)")
+     .set('Authorization', 'Bearer ' + accessToken)
+     .accept('application/json')
+     .set('cache-control', 'no-cache')
+     .send(fields)
+    /* .end((err, res) => {
+            //console.log(res);
+       callback(err, res);
+     });*/
+     .then(response => {callback})
+     .catch(err => {cberror});
+  } else return;
+
+} //end postSPContract
+
 //Generates POST request to Sendmail endpoint
 exports.sendMail = function sendMail(accessToken, message, user, callback) {
 //console.log(message);

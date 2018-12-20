@@ -25,8 +25,9 @@ var config =
 
 var jsonArray = [];
 
-exports.executesql = function(muutuja, sqlstatement, callback, mobjekt) {
-    var connection = new Connection(config);
+exports.executesql = function(muutuja, sqlstatement, callback, mobjekt, timeout) {
+  if(timeout !== undefined && timeout > 15000) config.options.requestTimeout = timeout;  
+  var connection = new Connection(config);
 
     connection.on('connect', function(err)
     {
