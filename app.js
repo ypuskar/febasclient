@@ -86,7 +86,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 //check ARH and update SP Arhiivis
-setInterval(startArh, 60000, 17, 26);
+setInterval(startArh, 60000, 5, 15);
 //startArh(17,23);
 app.get('/',  function(req, res) {
   res.render('index', {user: req.user});
