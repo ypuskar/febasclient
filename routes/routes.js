@@ -23,5 +23,6 @@ router.get('/customers/:kommId/arve', Handlers.arved_json);
 router.get('/customers/:kommId/kontakt', Handlers.kontaktid_json);
 router.post('/sendMail', Handlers.sendMail);
 router.get('/timeStamp', Handlers.timestamp);
+router.get('/customers/febcust', Handlers.febcust);
 
 module.exports = router;

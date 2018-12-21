@@ -321,6 +321,7 @@ block content
       };
 
       var kypsis = document.cookie;
+      var customerurl = "/clients/customers/customers/febcust";
       //console.log(kypsis);
 
       //console.log(tulemus.length);
@@ -344,7 +345,12 @@ block content
         bProcessing: true,
         deferRender: true,
         stateSave: true,
-        data: tulemus,
+        ajax: {
+        url : customerurl,
+        method: "GET",
+        dataSrc: ""
+        },
+        //data: tulemus,
         // Add color red to customer
         rowCallback: function(row, data, index) {
           if( data.YLE_MT == 1 || data.VABA_LIMIIT < 0 ) {

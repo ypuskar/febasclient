@@ -40,58 +40,63 @@ exports.timestamp = function (req, res) {
   return res.status(200).json(result);
   });
 };
+
+//Read all customers
+exports.febcust = function (req, res) {
+  DataStore.executesql(req, 'SELECT  DISTINCT k.[KLENDI_NIMI] as Kliendi_nimi,'+
+  ' k.[E_MAIL],'+
+  ' k.[TELEFON],'+
+  ' k.[KMKN],'+
+  ' k.[MÄRKUS_1],'+
+  ' k.[AUT_TARNEKEELD],'+
+  ' k.[KRED_LIMIIT],'+
+  ' k.[REG_NR],'+
+  ' k.[TARNEKEELD],'+
+  ' k.[MÄRKUS_2],'+
+  ' k.KOMMENTAAR,'+
+  //                        ' k.MAKSETINGIMUS,'+
+  ' k.ID,'+
+  ' k.KLIENDIKOOD,'+
+  ' k.AEGUMATA,'+
+  ' k.[30P],'+
+  ' k.[180P],'+
+  ' k.VANEM,'+
+  ' k.KOKKU,'+
+  ' k.TARNITUD,'+
+  ' k.VABA_LIMIIT,'+
+  ' k.YLE_MT,'+
+  ' k.YLE_MT_KOKKU,'+
+  ' k.TEHNIK,'+
+  ' k.YLE_LIMIIDI,'+
+  ' k.ARVEID,'+
+  ' k.KOONDARVE,'+
+  ' k.SP_ID,'+
+  ' k.SP_FIRMA_ID,'+
+  ' k.F_NIMI,'+
+  ' k.F_TELELFON AS F_TELEFON,'+
+  ' k.F_EMAIL,'+
+  //                        ' COUNT(a.ID) over (partition by k.id) AS [Maksmata_arveid],'+
+  //                        ' SUM(a.tasumata) over (partition by k.id) as [Tasumata_SUM],'+
+  ' p.[MT_NIMETUS] as MAKSETINGIMUS'+
+  ' FROM [MR_KLIENDID] k'+
+  ' JOIN [MR_MAKSETINGIMUS] p ON k.MAKSETINGIMUS = p.MT',
+  //                        ' LEFT OUTER JOIN [MR_ARVED] a ON k.ID = a.KLIENDI_ID',
+  function(result){
+    return res.status(200).json(result);
+  //  res.send('LÕPP KÄES');
+  });
+}
 // SQL loads all Feb customers and joins maksetingimus
 exports.customer_feb = function(req, res) {
-  // check if user is authenticated
-if (req.user != undefined) {
-  console.log(req.user.profile.displayName + ' IS Authenticated');
-} else {
-  console.log('NOT Authenticated in customer_feb');
-  return res.redirect('/login');
-}
-  DataStore.executesql(req, 'SELECT  DISTINCT k.[KLENDI_NIMI] as Kliendi_nimi,'+
-                        ' k.[E_MAIL],'+
-                        ' k.[TELEFON],'+
-                        ' k.[KMKN],'+
-                        ' k.[MÄRKUS_1],'+
-                        ' k.[AUT_TARNEKEELD],'+
-                        ' k.[KRED_LIMIIT],'+
-                        ' k.[REG_NR],'+
-                        ' k.[TARNEKEELD],'+
-                        ' k.[MÄRKUS_2],'+
-                        ' k.KOMMENTAAR,'+
-//                        ' k.MAKSETINGIMUS,'+
-                        ' k.ID,'+
-                        ' k.KLIENDIKOOD,'+
-                        ' k.AEGUMATA,'+
-                        ' k.[30P],'+
-                        ' k.[180P],'+
-                        ' k.VANEM,'+
-                        ' k.KOKKU,'+
-                        ' k.TARNITUD,'+
-                        ' k.VABA_LIMIIT,'+
-                        ' k.YLE_MT,'+
-                        ' k.YLE_MT_KOKKU,'+
-                        ' k.TEHNIK,'+
-                        ' k.YLE_LIMIIDI,'+
-                        ' k.ARVEID,'+
-                        ' k.KOONDARVE,'+
-                        ' k.SP_ID,'+
-                        ' k.SP_FIRMA_ID,'+
-                        ' k.F_NIMI,'+
-                        ' k.F_TELELFON AS F_TELEFON,'+
-                        ' k.F_EMAIL,'+
-//                        ' COUNT(a.ID) over (partition by k.id) AS [Maksmata_arveid],'+
-//                        ' SUM(a.tasumata) over (partition by k.id) as [Tasumata_SUM],'+
-                        ' p.[MT_NIMETUS] as MAKSETINGIMUS'+
-                        ' FROM [MR_KLIENDID] k'+
-                        ' JOIN [MR_MAKSETINGIMUS] p ON k.MAKSETINGIMUS = p.MT',
-//                        ' LEFT OUTER JOIN [MR_ARVED] a ON k.ID = a.KLIENDI_ID',
-          function(result){
+    // check if user is authenticated
+  if (req.user != undefined) {
+    console.log(req.user.profile.displayName + ' IS Authenticated');
+  } else {
+    console.log('NOT Authenticated in customer_feb');
+    return res.redirect('/login');
+  }
+  res.render('customers', {title: 'FEB MR', result: [], env: process.env.NODE_ENV, user: req.user});
 
-//  res.send('LÕPP KÄES');
-  res.render('customers', {title: 'FEB MR', result: result, env: process.env.NODE_ENV, user: req.user});
-  });
 };
 
 //insert new comment for customer
