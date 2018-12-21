@@ -713,19 +713,20 @@ block content
                             aeg.getDate()+"/"+ kuu +
                             "/"+ aeg.getFullYear()
                 },
-                {
+              /*  {
                 extend: 'print',
                 //autoPrint: false, print header
                 title:      kliendinimi + " tasumata arved seisuga " +
                             aeg.getDate()+"/"+ kuu +
                             "/"+ aeg.getFullYear(),
                 customize: function ( win ) {
+                
                 $(win.document.body).find( 'table' )
                   .attr( 'id', 'printSection' );
                 $(win.document.body).find('h1')
                 .attr('id','printSection').wrap('<div class="header-print" id=printSection></div>');
                 }
-                },
+                },*/
                 { //button send email
                   text: 'Email',
                   action: function ( e, dt, node, config ) {
@@ -733,6 +734,49 @@ block content
                     $('#emailForm').removeClass('hidden');
                   //disable email button until email is sent
                     arvetable.button(2).disable();
+                  }
+                },
+                { //button print HTML table
+                  text: 'Print',
+                  action: function ( e, dt, node, config ) {
+                  
+                   var arveTabelHtml = document.createElement('div');
+                   $(arveTabelHtml).attr('id', 'printSection');
+                   var header = "<h4>"+kliendinimi + " tasumata arved seisuga " +
+                            aeg.getDate()+"/"+ kuu +
+                            "/"+ aeg.getFullYear()+"</h4>";
+                  
+                  //console.log(header);
+
+                   var arveTabel = $('#arveTabel').DataTable().buttons.exportData({
+                      stripHtml: false,
+                      format: {
+                        body: function(d, e, f, g) {
+                          var spanColor = $(g).filter(".bold-red");
+                          return spanColor.length > 0 ? spanColor[0].innerHTML : d;
+                        }
+                      }
+                      });
+
+
+                     $(arveTabelHtml).html(header + convertTableToHtml(arveTabel));
+
+                    var cloned = $('.modal-open').clone();
+                    
+                    var printSection = $(arveTabelHtml);
+
+                    printSection.appendTo('body');
+                    var stiil = $('#printSection').find('style').remove();
+                    $('#printSection').find('table').addClass('table, table-bordered');
+                    stiil.appendTo('head');
+
+                    var toggleBody = $('body *:visible');
+                    toggleBody.hide();
+
+                    $('#printSection, #printSection *').show();
+                    window.print();
+                    printSection.remove();
+                    toggleBody.show();
                   }
                 },
                 { //button copy clipboard
@@ -1186,11 +1230,11 @@ block content
       //console.log(myTable);
       var html = "<table>"+
       "<style>th, td {border-bottom: 1px solid #ddd; padding: 4px;}"+
-      "th {font-weight: bold;}</style>";
+      "th {font-weight: bold;}</style><tbody>";
       //add header row
       html += "<tr>";
       for(var i=0;i<myTable.header.length;i++)
-          html+="<td>"+myTable.header[i]+"</td>";
+          html+="<th>"+myTable.header[i]+"</th>";
       html += "</tr>";
       //add rows
       for (var i = 0; i < myTable.body.length; i++)
@@ -1207,7 +1251,7 @@ block content
 
           html += "</tr>";
       }
-      html += "</table>";
+      html += "</tbody></table>";
       return html;
     }
     //parse email adresses from string
