@@ -504,11 +504,11 @@ function startArh(startHour, startMinute) {
   if (startHour === timeofNow.getHours() && startMinute === timeofNow.getMinutes()) {
 
     console.log('KUUPÄEV',timeofNow.getHours(),':',timeofNow.getMinutes());
-    /*
+    
     graphHelper.getGToken((err, response) => {
       updateArh(JSON.parse(response.text).access_token);
     });
-    */
+    
   } else return;
 }
 

@@ -825,7 +825,7 @@ block content
                 if( moment().isAfter(moment(data.MAKSE_KUUPÄEV, 'DD-MM-YYYY'))) {
                 //add bold-red if invoice due date is past, add style for email
                   $('td:eq(2)', row).addClass('bold-red')
-                  .wrapInner('<span class="bold-red" style="font-weight: bold; color: red;"></span>');
+                  .wrapInner('<span class="bold-red" style="font-weight: bold; color: red !important;"></span>');
                   $('td:eq(5)', row).addClass('yleaja');
                   //yleTahtaja+=intVal(data.TASUMATA);
                   //console.log(yleTahtaja);
@@ -877,7 +877,7 @@ block content
                   var yleaja = yleTahtaja.toLocaleString('et-EE',{maximumFractionDigits: 2 });
 
                 $(thead).find('th').eq(5).html( 'Tasumata<br>'+(total5)+'<br>'
-                +'<span style="font-weight: bold; color: red;">'+yleaja+'</span>' );
+                +'<span style="font-weight: bold; color: red !important;">'+yleaja+'</span>' );
                 $(thead).find('th').eq(4).html( 'Tasutud<br>'+(total4) );
                 $(thead).find('th').eq(3).html( 'Summa<br>'+(total3));
                 },

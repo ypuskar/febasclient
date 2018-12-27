@@ -51,7 +51,7 @@ td.deleterow {
 }
 .bold-red {
   font-weight:bold;
-  color:red;
+  color:red !important;
 }
 .fix-height {
   display: block;
