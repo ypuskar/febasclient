@@ -355,7 +355,8 @@ block content
         rowCallback: function(row, data, index) {
           if( data.YLE_MT == 1 || data.VABA_LIMIIT < 0 ) {
             $('td:eq(3)', row).addClass('bold-red');
-          } else if (data.TARNEKEELD === 'E') {
+          }
+           if (data.TARNEKEELD === 'E') {
             $('td', row).addClass('back-yellow');
           }
           //add button for arved modal
